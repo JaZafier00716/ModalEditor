@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/ModalEditor.dir/link.d CMakeFiles/ModalEditor.dir/main.cpp.o CMakeFiles/ModalEditor.dir/src/Editor.cpp.o -o ModalEditor

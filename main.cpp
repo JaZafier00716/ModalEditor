@@ -16,7 +16,7 @@
 
 // TODO:
 /*
- * MovePage function
+ * Load file from terminal param
  *
 */
 int main (int argc, char* argv[]) {

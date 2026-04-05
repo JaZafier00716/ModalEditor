@@ -97,8 +97,8 @@ namespace terminal_manager {
             char seq[3];
 
             // Read the next two bytes of the escape sequence
-            if (read(STDIN_FILENO, &seq[0], 1) != 1) return '\x1b';
-            if (read(STDIN_FILENO, &seq[1], 1) != 1) return '\x1b';
+            if (read(STDIN_FILENO, &seq[0], 1) != 1) return static_cast<int>(EditorKey::ESCAPE_KEY);
+            if (read(STDIN_FILENO, &seq[1], 1) != 1) return static_cast<int>(EditorKey::ESCAPE_KEY);
 
             // Source:
             // https://en.wikipedia.org/wiki/ANSI_escape_code#Terminal_input_sequences
@@ -124,7 +124,7 @@ namespace terminal_manager {
                     */
 
                     // Extended escape sequence => read one more byte
-                    if (read(STDIN_FILENO, &seq[2], 1) != 1) return '\x1b';
+                    if (read(STDIN_FILENO, &seq[2], 1) != 1) return static_cast<int>(EditorKey::ESCAPE_KEY);
 
                     if (seq[2] == '~') {
                         // Mapping to special keys
@@ -160,7 +160,7 @@ namespace terminal_manager {
                         case 'C': return static_cast<int>(EditorKey::ARROW_RIGHT);  // Right arrow
                         case 'D': return static_cast<int>(EditorKey::ARROW_LEFT);   // Left arrow
                         case 'F': return static_cast<int>(EditorKey::END_KEY);      // End key (alternative)
-                            case 'H': return static_cast<int>(EditorKey::HOME_KEY);
+                        case 'H': return static_cast<int>(EditorKey::HOME_KEY);
                     }
                 }
             }

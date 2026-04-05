@@ -34,10 +34,16 @@ namespace terminal_control_sequences {
     // colors
     constexpr std::string_view reset_color = "\033[0m";
     constexpr std::string_view dimmed_color = "\033[1;35m";
+    constexpr std::string_view invert_colors = "\x1b[7m";
+    constexpr std::string_view reset_invert_colors = "\x1b[m";
 
     //control sequences
     constexpr std::string_view clear_screen = "\x1B[2J";
     constexpr std::string_view cursor_start = "\x1B[H";
+    constexpr std::string_view hide_cursor = "\x1B[?25l";
+    constexpr std::string_view show_cursor = "\x1B[?25h";
+    constexpr std::string_view clear_to_eol = "\x1B[2K";
+    constexpr std::string_view new_line = "\r\n";
 }
 
 namespace terminal_manager {

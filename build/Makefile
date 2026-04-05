@@ -184,6 +184,54 @@ src/Editor.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/Editor.cpp.s
 .PHONY : src/Editor.cpp.s
 
+src/EditorMode.o: src/EditorMode.cpp.o
+.PHONY : src/EditorMode.o
+
+# target to build an object file
+src/EditorMode.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o
+.PHONY : src/EditorMode.cpp.o
+
+src/EditorMode.i: src/EditorMode.cpp.i
+.PHONY : src/EditorMode.i
+
+# target to preprocess a source file
+src/EditorMode.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.i
+.PHONY : src/EditorMode.cpp.i
+
+src/EditorMode.s: src/EditorMode.cpp.s
+.PHONY : src/EditorMode.s
+
+# target to generate assembly for a file
+src/EditorMode.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.s
+.PHONY : src/EditorMode.cpp.s
+
+src/TerminalManagement.o: src/TerminalManagement.cpp.o
+.PHONY : src/TerminalManagement.o
+
+# target to build an object file
+src/TerminalManagement.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o
+.PHONY : src/TerminalManagement.cpp.o
+
+src/TerminalManagement.i: src/TerminalManagement.cpp.i
+.PHONY : src/TerminalManagement.i
+
+# target to preprocess a source file
+src/TerminalManagement.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.i
+.PHONY : src/TerminalManagement.cpp.i
+
+src/TerminalManagement.s: src/TerminalManagement.cpp.s
+.PHONY : src/TerminalManagement.s
+
+# target to generate assembly for a file
+src/TerminalManagement.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.s
+.PHONY : src/TerminalManagement.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -200,6 +248,12 @@ help:
 	@echo "... src/Editor.o"
 	@echo "... src/Editor.i"
 	@echo "... src/Editor.s"
+	@echo "... src/EditorMode.o"
+	@echo "... src/EditorMode.i"
+	@echo "... src/EditorMode.s"
+	@echo "... src/TerminalManagement.o"
+	@echo "... src/TerminalManagement.i"
+	@echo "... src/TerminalManagement.s"
 .PHONY : help
 
 

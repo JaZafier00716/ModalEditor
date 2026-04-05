@@ -100,20 +100,52 @@ CMakeFiles/ModalEditor.dir/src/Editor.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ModalEditor.dir/src/Editor.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jan/CLionProjects/ModalEditor/src/Editor.cpp -o CMakeFiles/ModalEditor.dir/src/Editor.cpp.s
 
+CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o: CMakeFiles/ModalEditor.dir/flags.make
+CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o: /home/jan/CLionProjects/ModalEditor/src/TerminalManagement.cpp
+CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o: CMakeFiles/ModalEditor.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jan/CLionProjects/ModalEditor/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o -MF CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o.d -o CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o -c /home/jan/CLionProjects/ModalEditor/src/TerminalManagement.cpp
+
+CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jan/CLionProjects/ModalEditor/src/TerminalManagement.cpp > CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.i
+
+CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jan/CLionProjects/ModalEditor/src/TerminalManagement.cpp -o CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.s
+
+CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o: CMakeFiles/ModalEditor.dir/flags.make
+CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o: /home/jan/CLionProjects/ModalEditor/src/EditorMode.cpp
+CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o: CMakeFiles/ModalEditor.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jan/CLionProjects/ModalEditor/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o -MF CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o.d -o CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o -c /home/jan/CLionProjects/ModalEditor/src/EditorMode.cpp
+
+CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jan/CLionProjects/ModalEditor/src/EditorMode.cpp > CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.i
+
+CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jan/CLionProjects/ModalEditor/src/EditorMode.cpp -o CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.s
+
 # Object files for target ModalEditor
 ModalEditor_OBJECTS = \
 "CMakeFiles/ModalEditor.dir/main.cpp.o" \
-"CMakeFiles/ModalEditor.dir/src/Editor.cpp.o"
+"CMakeFiles/ModalEditor.dir/src/Editor.cpp.o" \
+"CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o" \
+"CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o"
 
 # External object files for target ModalEditor
 ModalEditor_EXTERNAL_OBJECTS =
 
 ModalEditor: CMakeFiles/ModalEditor.dir/main.cpp.o
 ModalEditor: CMakeFiles/ModalEditor.dir/src/Editor.cpp.o
+ModalEditor: CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o
+ModalEditor: CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o
 ModalEditor: CMakeFiles/ModalEditor.dir/build.make
 ModalEditor: CMakeFiles/ModalEditor.dir/compiler_depend.ts
 ModalEditor: CMakeFiles/ModalEditor.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jan/CLionProjects/ModalEditor/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable ModalEditor"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jan/CLionProjects/ModalEditor/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable ModalEditor"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ModalEditor.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

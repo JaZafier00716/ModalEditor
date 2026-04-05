@@ -4,6 +4,10 @@ file(REMOVE_RECURSE
   "CMakeFiles/ModalEditor.dir/main.cpp.o.d"
   "CMakeFiles/ModalEditor.dir/src/Editor.cpp.o"
   "CMakeFiles/ModalEditor.dir/src/Editor.cpp.o.d"
+  "CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o"
+  "CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o.d"
+  "CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o"
+  "CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o.d"
   "ModalEditor"
   "ModalEditor.pdb"
 )

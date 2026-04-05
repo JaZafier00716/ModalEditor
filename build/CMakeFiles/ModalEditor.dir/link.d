@@ -4,6 +4,8 @@ ModalEditor: \
   /usr/lib/gcc/x86_64-linux-gnu/14/crtbeginS.o \
   CMakeFiles/ModalEditor.dir/main.cpp.o \
   CMakeFiles/ModalEditor.dir/src/Editor.cpp.o \
+  CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o \
+  CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o \
   /usr/lib/gcc/x86_64-linux-gnu/14/libstdc++.so \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libm.so \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libm.so \
@@ -30,7 +32,6 @@ ModalEditor: \
   /usr/lib/gcc/x86_64-linux-gnu/14/libgcc.a \
   /usr/lib/gcc/x86_64-linux-gnu/14/crtendS.o \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/crtn.o \
-  /lib/x86_64-linux-gnu/libm.so.6 \
   /lib64/ld-linux-x86-64.so.2
 
 /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/Scrt1.o:
@@ -42,6 +43,10 @@ ModalEditor: \
 CMakeFiles/ModalEditor.dir/main.cpp.o:
 
 CMakeFiles/ModalEditor.dir/src/Editor.cpp.o:
+
+CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o:
+
+CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o:
 
 /usr/lib/gcc/x86_64-linux-gnu/14/libstdc++.so:
 
@@ -94,7 +99,5 @@ CMakeFiles/ModalEditor.dir/src/Editor.cpp.o:
 /usr/lib/gcc/x86_64-linux-gnu/14/crtendS.o:
 
 /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/crtn.o:
-
-/lib/x86_64-linux-gnu/libm.so.6:
 
 /lib64/ld-linux-x86-64.so.2:

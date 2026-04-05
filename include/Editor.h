@@ -19,12 +19,10 @@ class Editor {
 public:
     Editor();
 
-    explicit Editor(const string& filename) : Editor() {
-        this->message = filename.empty() ? "new file" : filename;
-    }
+    explicit Editor(const string& filename);
     void run();
     void processKeypress();
-    void refreshScreen() const;
+    void refreshScreen();
 
     // Input methods
     void moveCursor(int key);
@@ -49,6 +47,11 @@ public:
             cursor_pos.x = rows[cursor_pos.y].size();
         }
     }
+
+    void appendDebugMessage(std::string_view message) {
+        debug_info_message += message;
+        debug_info_message += " | ";
+    }
 private:
     vector<string> rows;
     int2d screen_size{0,0};
@@ -56,7 +59,10 @@ private:
     int desired_cursor_pos{0};
     int render_pos{0}; // for tab rendering
     int2d offset{0,0}; // col and row offset
+    int line_num_offset{0}; // offset for line numbers
     string message;
+    string output_buffer;
+    string debug_info_message;
 
 
     // Editor Modes
@@ -67,8 +73,6 @@ private:
     void printRows(std::string &s);
     void scroll();
     void printMessage(std::string_view message, ...);
-
-    void moveCursorLeft();
 
     int get_row_length(const int y) const {
         if (y < 0 || y >= static_cast<int>(rows.size())) {
@@ -93,6 +97,16 @@ private:
         if (cursor_pos.x > row_length) {
             cursor_pos.x = row_length;
         }
+    }
+
+    std::string getRelativeLineNumber(const int y) const {
+        int line_number;
+        if (y == cursor_pos.y) {
+            line_number = cursor_pos.y + 1; // numbering starts at 1
+        } else {
+            line_number = abs(y - cursor_pos.y);
+        }
+        return std::format("{:>4}  ", line_number);
     }
 
     // Config

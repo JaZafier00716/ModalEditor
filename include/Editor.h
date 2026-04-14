@@ -82,21 +82,12 @@ private:
     }
 
     void clampCursorPosition() {
-        if (cursor_pos.y < 0) {
-            cursor_pos.y = 0;
-        }
         const auto max_y = rows.empty() ? 0 : static_cast<int>(rows.size()-1);
-        if (cursor_pos.y > max_y) {
-            cursor_pos.y = max_y;
-        }
+        cursor_pos.y = std::clamp(cursor_pos.y, 0, max_y);
 
         const auto row_length = get_row_length(cursor_pos.y);
-        if (cursor_pos.x < 0) {
-            cursor_pos.x = 0;
-        }
-        if (cursor_pos.x > row_length) {
-            cursor_pos.x = row_length;
-        }
+
+        cursor_pos.x = std::clamp(cursor_pos.x, 0, row_length);
     }
 
     std::string getRelativeLineNumber(const int y) const {

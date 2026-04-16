@@ -8,7 +8,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 
-typedef struct int2d {
+struct int2d {
     int x{0};
     int y{0};
 };

@@ -160,6 +160,30 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+src/CursorController.o: src/CursorController.cpp.o
+.PHONY : src/CursorController.o
+
+# target to build an object file
+src/CursorController.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/CursorController.cpp.o
+.PHONY : src/CursorController.cpp.o
+
+src/CursorController.i: src/CursorController.cpp.i
+.PHONY : src/CursorController.i
+
+# target to preprocess a source file
+src/CursorController.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/CursorController.cpp.i
+.PHONY : src/CursorController.cpp.i
+
+src/CursorController.s: src/CursorController.cpp.s
+.PHONY : src/CursorController.s
+
+# target to generate assembly for a file
+src/CursorController.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/CursorController.cpp.s
+.PHONY : src/CursorController.cpp.s
+
 src/Editor.o: src/Editor.cpp.o
 .PHONY : src/Editor.o
 
@@ -245,6 +269,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... src/CursorController.o"
+	@echo "... src/CursorController.i"
+	@echo "... src/CursorController.s"
 	@echo "... src/Editor.o"
 	@echo "... src/Editor.i"
 	@echo "... src/Editor.s"

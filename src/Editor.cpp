@@ -9,8 +9,8 @@
 
 Editor::Editor() : Editor("new file") {}
 
-Editor::Editor(const string& filename){
-    this->message = filename.empty() ? "new file" : filename;
+Editor::Editor(const string& filename) : cursor_controller(rows, screen_size) {
+    this->file_name = filename.empty() ? "new file" : filename;
 
     terminal_manager::enableRawMode();
 
@@ -23,13 +23,14 @@ Editor::Editor(const string& filename){
 
 
 void Editor::run() {
-    printMessage(this->message);
+    printMessage(this->file_name);
     terminal_manager::clear_screen();
-    while (true) {
+    while (!should_exit) {
         refreshScreen();
         processKeypress();
     }
 }
+
 
 void Editor::printRows(std::string& s) {
     size_t i = 0;
@@ -38,7 +39,6 @@ void Editor::printRows(std::string& s) {
 
     for (auto& row : visible_rows) {
         if (line_numbers) {
-
             const auto line_num = getRelativeLineNumber(i+offset.y);
             line_num_offset = line_num.length();
             s += terminal_control_sequences::dimmed_color;
@@ -79,32 +79,51 @@ void Editor::printRows(std::string& s) {
 }
 
 void Editor::scroll() {
-    render_pos = cursor_pos.x;
+    auto [col_pos, row_pos] = cursor_controller.getCursorPosition();
+    render_pos = col_pos;
 
     // Horizontal scrolling
-    if (cursor_pos.x < offset.x) {
+    if (col_pos < offset.x) {
         // Scrolling left
         // Updating horizontal offset to current cursor position
-        offset.x = cursor_pos.x;
+        offset.x = col_pos;
     }
-    if (cursor_pos.x >= offset.x + screen_size.x) {
+    if (col_pos >= offset.x + screen_size.x) {
         // Cursor OOB -> Scrolling right
-        offset.x = cursor_pos.x - screen_size.x + 5; // +5 for some padding
+        offset.x = col_pos - screen_size.x + 5; // +5 for some padding
     }
 
     // Vertical scrolling
-    if (cursor_pos.y < offset.y) {
+    if (row_pos < offset.y) {
         // Scrolling up
         // Updating vertical offset to current cursor position
-        offset.y = cursor_pos.y;
+        offset.y = row_pos;
     }
-    if (cursor_pos.y >= offset.y + screen_size.y) {
+    if (row_pos >= offset.y + screen_size.y) {
         // Scrolling down
-        offset.y = cursor_pos.y - screen_size.y + 5;
+        offset.y = row_pos - screen_size.y + 5;
     }
 }
+
+
 void Editor::printMessage(std::string_view message, ...) {
 
+}
+
+int2d Editor::getCursorPosition() const {
+    return cursor_controller.getCursorPosition();
+}
+
+std::string Editor::getRelativeLineNumber(const int y) const {
+    int line_number;
+    const auto cursor_pos_y = getCursorPosition().y;
+
+    if (y == cursor_pos_y) {
+        line_number = cursor_pos_y + 1; // numbering starts at 1
+    } else {
+        line_number = abs(y - cursor_pos_y);
+    }
+    return std::format("{:>4}  ", line_number);
 }
 
 
@@ -118,17 +137,23 @@ void Editor::refreshScreen() {
 
     printRows(output_buffer);
 
+    
     // Bottom status bar
+    auto [col_pos, row_pos] = cursor_controller.getCursorPosition();
+    const std::string_view mode_name = std::visit([](const auto& mode) {
+        return mode.getName();
+    }, current_mode);
+
     output_buffer += terminal_control_sequences::invert_colors;
-    std::format_to(std::back_inserter(output_buffer), "{:>8} Mode | {:<10} | Line {}", current_mode->getName(), message, cursor_pos.y + 1);
+    std::format_to(std::back_inserter(output_buffer), "{:>8} Mode | {:<10} | Line {}", mode_name, file_name, row_pos + 1);
     output_buffer += terminal_control_sequences::reset_invert_colors;
     output_buffer += terminal_control_sequences::new_line;
     std::format_to(std::back_inserter(output_buffer), "{}", debug_info_message);
 
 
     const int2d visual_cursor = {
-        .x = cursor_pos.x - offset.x + 1 + line_num_offset,
-        .y = cursor_pos.y - offset.y + 1
+        .x = col_pos - offset.x + 1 + line_num_offset,
+        .y = row_pos - offset.y + 1
     };
     // Position cursor
     std::format_to(std::back_inserter(output_buffer), "\x1b[{};{}H", visual_cursor.y, visual_cursor.x);
@@ -138,68 +163,64 @@ void Editor::refreshScreen() {
     debug_info_message.clear();
 }
 
-void Editor::moveCursor(const int key) {
-    switch (key) {
-        case static_cast<int>(EditorKey::ARROW_UP):
-        case 'k':
-            // Move UP
-            appendDebugMessage("Moving up");
-            if (cursor_pos.y > 0) {
-                cursor_pos.y--;
-                cursor_pos.x = desired_cursor_pos; // Try to maintain horizontal position - otherwise clamp will fix :)
-            }
-            break;
-        case static_cast<int>(EditorKey::ARROW_DOWN):
-        case 'j':
-            // Move DOWN
-            appendDebugMessage("Moving down");
-            if (!rows.empty() && cursor_pos.y < static_cast<int>(rows.size()) - 1) {
-                cursor_pos.y++;
-                cursor_pos.x = desired_cursor_pos; // Try to maintain horizontal position - otherwise clamp will fix :)
-            }
-            break;
-        case static_cast<int>(EditorKey::ARROW_RIGHT):
-        case 'l':
-            // Move RIGHT
-            appendDebugMessage("Moving right");
-            if (cursor_pos.x < get_row_length(cursor_pos.y)) {
-                cursor_pos.x++;
-            } else if (cursor_pos.y < static_cast<int>(rows.size()) - 1) {
-                cursor_pos.y++;
-                cursor_pos.x = 0; // Move to start of next line
-            }
-            desired_cursor_pos = cursor_pos.x; // Update desired position for vertical movement
-            break;
-        case static_cast<int>(EditorKey::ARROW_LEFT):
-        case 'h':
-            // Move LEFT
-            appendDebugMessage("Moving left");
-            if (cursor_pos.x > 0) {
-                cursor_pos.x--;
-            } else if (cursor_pos.y > 0) {
-                cursor_pos.y--;
-                cursor_pos.x = get_row_length(cursor_pos.y); // Move to end of prev line
-            }
-            desired_cursor_pos = cursor_pos.x; // Update desired position for vertical movement
-            break;
-    }
-    clampCursorPosition();
+void Editor::appendDebugMessage(const std::string_view message) {
+    debug_info_message += message;
+    debug_info_message += " | ";
 }
-
-void Editor::movePage(const int key) {
-    if (key == static_cast<int>(EditorKey::PAGE_UP)) {
-        cursor_pos.y = std::max(cursor_pos.y - screen_size.y, 0);
-    } else if (key == static_cast<int>(EditorKey::PAGE_DOWN)) {
-        cursor_pos.y = std::min(cursor_pos.y + screen_size.y, static_cast<int>(rows.size()) - 1);
-    }
-    clampCursorPosition();
+void Editor::requestQuit() {
+    should_exit = true;
 }
 
 void Editor::processKeypress() {
     const auto c = terminal_manager::readKey();
     appendDebugMessage(std::format("Key pressed: {}", c));
-    auto next_mode = current_mode->handle_input(*this, c);
-    if (next_mode) {
-        current_mode = std::move(next_mode);
+    const auto next_mode = std::visit([&](auto& mode) -> std::optional<ModeType> {
+        return mode.handle_input(mode_context, c);
+    }, current_mode);
+
+    if (!next_mode.has_value()) {
+        return;
+    }
+
+    switch (next_mode.value()) {
+        case ModeType::NORMAL:
+            current_mode = NormalMode{};
+            break;
+        case ModeType::INSERT:
+            current_mode = InsertMode{};
+            break;
+        case ModeType::COMMAND:
+            current_mode = CommandMode{};
+            break;
     }
 }
+
+
+void Editor::ModeContextGate::appendDebugMessage(const std::string_view message) {
+    editor.appendDebugMessage(message);
+}
+
+void Editor::ModeContextGate::moveCursor(const int key) {
+    editor.cursor_controller.moveCursor(key);
+}
+
+void Editor::ModeContextGate::movePage(const int key) {
+    editor.cursor_controller.movePage(key);
+}
+
+void Editor::ModeContextGate::moveCursorLineStart() {
+    editor.cursor_controller.moveCursorLineStart();
+}
+
+void Editor::ModeContextGate::moveCursorLineEnd() {
+    editor.cursor_controller.moveCursorLineEnd();
+}
+
+void Editor::ModeContextGate::moveCursorRightOne() {
+    editor.cursor_controller.moveCursorRightOne();
+}
+
+void Editor::ModeContextGate::requestQuit() {
+    editor.requestQuit();
+}
+

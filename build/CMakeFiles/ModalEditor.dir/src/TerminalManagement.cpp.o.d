@@ -247,4 +247,5 @@ CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o: \
  /usr/include/c++/14/bits/stl_bvector.h \
  /usr/include/c++/14/bits/vector.tcc \
  /home/jan/CLionProjects/ModalEditor/src/../include/TerminalManagement.h \
- /home/jan/CLionProjects/ModalEditor/src/../include/EditorMode.h
+ /home/jan/CLionProjects/ModalEditor/src/../include/EditorMode.h \
+ /home/jan/CLionProjects/ModalEditor/src/../include/CursorController.h

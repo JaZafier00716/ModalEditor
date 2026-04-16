@@ -9,8 +9,10 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 #include "TerminalManagement.h"
 #include "EditorMode.h"
+#include "CursorController.h"
 
 using std::string, std::vector;
 
@@ -21,84 +23,54 @@ public:
 
     explicit Editor(const string& filename);
     void run();
+private:
+    class ModeContextGate final : public INormalModeContext, public IInsertModeContext, public ICommandModeContext {
+    public:
+        explicit ModeContextGate(Editor& editor) : editor{editor} {}
+
+        void appendDebugMessage(std::string_view message) override;
+
+        void moveCursor(int key) override;
+        void movePage(int key) override;
+        void moveCursorLineStart() override;
+        void moveCursorLineEnd() override;
+        void moveCursorRightOne() override;
+
+        void requestQuit() override;
+
+    private:
+        Editor& editor;
+    };
+
+
     void processKeypress();
     void refreshScreen();
 
-    // Input methods
-    void moveCursor(int key);
-    void movePage(int key);
-
-    void setCursorPositionX(const int x) {
-        if (cursor_pos.y < rows.size()) {
-            cursor_pos.x = std::min(x, static_cast<int>(rows[cursor_pos.y].size()));
-        } else {
-             cursor_pos.x = x;
-        }
-    }
-    void setCursorPositionY(const int y) {
-        cursor_pos.y = y;
-    }
-    int2d getCursorPosition() const {
-        return cursor_pos;
-    }
-
-    void moveCursorLineEnd() {
-        if (cursor_pos.y < rows.size()) {
-            cursor_pos.x = rows[cursor_pos.y].size();
-        }
-    }
-
-    void appendDebugMessage(std::string_view message) {
-        debug_info_message += message;
-        debug_info_message += " | ";
-    }
-private:
-    vector<string> rows;
-    int2d screen_size{0,0};
-    int2d cursor_pos{0,0};
-    int desired_cursor_pos{0};
-    int render_pos{0}; // for tab rendering
-    int2d offset{0,0}; // col and row offset
-    int line_num_offset{0}; // offset for line numbers
-    string message;
-    string output_buffer;
-    string debug_info_message;
-
-
-    // Editor Modes
-    std::unique_ptr<EditorMode> current_mode = std::make_unique<NormalMode>();
-
+    void appendDebugMessage(std::string_view message);
+    void requestQuit();
 
     // Output methods
     void printRows(std::string &s);
     void scroll();
     void printMessage(std::string_view message, ...);
 
-    int get_row_length(const int y) const {
-        if (y < 0 || y >= static_cast<int>(rows.size())) {
-            return 0;
-        }
-        return static_cast<int>(rows[y].size());
-    }
+    [[nodiscard]] int2d getCursorPosition() const;
+    std::string getRelativeLineNumber(const int y) const;
 
-    void clampCursorPosition() {
-        const auto max_y = rows.empty() ? 0 : static_cast<int>(rows.size()-1);
-        cursor_pos.y = std::clamp(cursor_pos.y, 0, max_y);
+    CursorController cursor_controller;
+    vector<string> rows;
 
-        const auto row_length = get_row_length(cursor_pos.y);
+    int2d screen_size{0,0};
+    int render_pos{0}; // for tab rendering
+    int2d offset{0,0}; // col and row offset
+    int line_num_offset{0}; // offset for line numbers
+    string file_name;
+    string output_buffer;
+    string debug_info_message;
 
-        cursor_pos.x = std::clamp(cursor_pos.x, 0, row_length);
-    }
-
-    std::string getRelativeLineNumber(const int y) const {
-        int line_number;
-        if (y == cursor_pos.y) {
-            line_number = cursor_pos.y + 1; // numbering starts at 1
-        } else {
-            line_number = abs(y - cursor_pos.y);
-        }
-        return std::format("{:>4}  ", line_number);
-    }
+    std::variant<NormalMode, InsertMode, CommandMode> current_mode{NormalMode{}};
+    ModeContextGate mode_context{*this};
+    bool should_exit{false};
 
     // Config
     int tab_spaces = 4;

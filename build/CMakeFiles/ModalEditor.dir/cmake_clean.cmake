@@ -2,6 +2,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/ModalEditor.dir/link.d"
   "CMakeFiles/ModalEditor.dir/main.cpp.o"
   "CMakeFiles/ModalEditor.dir/main.cpp.o.d"
+  "CMakeFiles/ModalEditor.dir/src/CursorController.cpp.o"
+  "CMakeFiles/ModalEditor.dir/src/CursorController.cpp.o.d"
   "CMakeFiles/ModalEditor.dir/src/Editor.cpp.o"
   "CMakeFiles/ModalEditor.dir/src/Editor.cpp.o.d"
   "CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o"

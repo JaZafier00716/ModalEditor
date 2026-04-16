@@ -20,9 +20,11 @@ add_executable(ModalEditor main.cpp
         src/Editor.cpp
         src/TerminalManagement.cpp
         src/EditorMode.cpp
+        src/CursorController.cpp
         include/Editor.h
         include/TerminalManagement.h
         include/EditorMode.h
+        include/CursorController.h
 )
 
 find_program(VALGRIND_PATH valgrind)

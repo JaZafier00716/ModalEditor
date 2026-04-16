@@ -7,6 +7,7 @@ ModalEditor: \
   CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o \
   CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o \
   CMakeFiles/ModalEditor.dir/src/CursorController.cpp.o \
+  CMakeFiles/ModalEditor.dir/src/EditorView.cpp.o \
   /usr/lib/gcc/x86_64-linux-gnu/14/libstdc++.so \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libm.so \
   /usr/lib/gcc/x86_64-linux-gnu/14/../../../x86_64-linux-gnu/libm.so \
@@ -50,6 +51,8 @@ CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o:
 CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o:
 
 CMakeFiles/ModalEditor.dir/src/CursorController.cpp.o:
+
+CMakeFiles/ModalEditor.dir/src/EditorView.cpp.o:
 
 /usr/lib/gcc/x86_64-linux-gnu/14/libstdc++.so:
 

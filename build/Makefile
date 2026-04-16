@@ -232,6 +232,30 @@ src/EditorMode.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.s
 .PHONY : src/EditorMode.cpp.s
 
+src/EditorView.o: src/EditorView.cpp.o
+.PHONY : src/EditorView.o
+
+# target to build an object file
+src/EditorView.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/EditorView.cpp.o
+.PHONY : src/EditorView.cpp.o
+
+src/EditorView.i: src/EditorView.cpp.i
+.PHONY : src/EditorView.i
+
+# target to preprocess a source file
+src/EditorView.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/EditorView.cpp.i
+.PHONY : src/EditorView.cpp.i
+
+src/EditorView.s: src/EditorView.cpp.s
+.PHONY : src/EditorView.s
+
+# target to generate assembly for a file
+src/EditorView.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/EditorView.cpp.s
+.PHONY : src/EditorView.cpp.s
+
 src/TerminalManagement.o: src/TerminalManagement.cpp.o
 .PHONY : src/TerminalManagement.o
 
@@ -278,6 +302,9 @@ help:
 	@echo "... src/EditorMode.o"
 	@echo "... src/EditorMode.i"
 	@echo "... src/EditorMode.s"
+	@echo "... src/EditorView.o"
+	@echo "... src/EditorView.i"
+	@echo "... src/EditorView.s"
 	@echo "... src/TerminalManagement.o"
 	@echo "... src/TerminalManagement.i"
 	@echo "... src/TerminalManagement.s"

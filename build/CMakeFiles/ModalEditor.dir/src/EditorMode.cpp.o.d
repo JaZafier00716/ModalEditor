@@ -247,4 +247,5 @@ CMakeFiles/ModalEditor.dir/src/EditorMode.cpp.o: \
  /usr/include/asm-generic/ioctl.h \
  /usr/include/x86_64-linux-gnu/bits/ioctl-types.h \
  /home/jan/CLionProjects/ModalEditor/src/../include/EditorMode.h \
- /home/jan/CLionProjects/ModalEditor/src/../include/CursorController.h
+ /home/jan/CLionProjects/ModalEditor/src/../include/CursorController.h \
+ /home/jan/CLionProjects/ModalEditor/src/../include/EditorView.h

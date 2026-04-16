@@ -246,6 +246,7 @@ CMakeFiles/ModalEditor.dir/src/Editor.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/ioctl-types.h \
  /home/jan/CLionProjects/ModalEditor/src/../include/EditorMode.h \
  /home/jan/CLionProjects/ModalEditor/src/../include/CursorController.h \
+ /home/jan/CLionProjects/ModalEditor/src/../include/EditorView.h \
  /usr/include/c++/14/ranges /usr/include/c++/14/iterator \
  /usr/include/c++/14/bits/stream_iterator.h \
  /usr/include/c++/14/bits/elements_of.h

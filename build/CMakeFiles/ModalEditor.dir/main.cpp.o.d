@@ -247,4 +247,5 @@ CMakeFiles/ModalEditor.dir/main.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/ioctl-types.h \
  /home/jan/CLionProjects/ModalEditor/include/EditorMode.h \
  /home/jan/CLionProjects/ModalEditor/include/CursorController.h \
+ /home/jan/CLionProjects/ModalEditor/include/TextDocument.h \
  /home/jan/CLionProjects/ModalEditor/include/EditorView.h

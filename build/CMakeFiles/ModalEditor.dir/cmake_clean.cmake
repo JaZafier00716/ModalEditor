@@ -12,6 +12,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/ModalEditor.dir/src/EditorView.cpp.o.d"
   "CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o"
   "CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.o.d"
+  "CMakeFiles/ModalEditor.dir/src/TextDocument.cpp.o"
+  "CMakeFiles/ModalEditor.dir/src/TextDocument.cpp.o.d"
   "ModalEditor"
   "ModalEditor.pdb"
 )

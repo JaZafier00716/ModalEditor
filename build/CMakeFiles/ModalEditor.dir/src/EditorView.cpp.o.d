@@ -146,13 +146,22 @@ CMakeFiles/ModalEditor.dir/src/EditorView.cpp.o: \
  /usr/include/linux/ioctl.h /usr/lib/linux/uapi/x86/asm/ioctl.h \
  /usr/include/asm-generic/ioctl.h \
  /usr/include/x86_64-linux-gnu/bits/ioctl-types.h \
+ /home/jan/CLionProjects/ModalEditor/src/../include/TextDocument.h \
  /home/jan/CLionProjects/ModalEditor/src/../include/EditorMode.h \
  /usr/include/c++/14/optional /usr/include/c++/14/exception \
  /usr/include/c++/14/bits/exception_ptr.h \
  /usr/include/c++/14/bits/cxxabi_init_exception.h \
  /usr/include/c++/14/typeinfo /usr/include/c++/14/bits/nested_exception.h \
- /usr/include/c++/14/format /usr/include/c++/14/array \
- /usr/include/c++/14/charconv \
+ /usr/include/c++/14/algorithm /usr/include/c++/14/bits/stl_algo.h \
+ /usr/include/c++/14/bits/algorithmfwd.h \
+ /usr/include/c++/14/bits/stl_heap.h \
+ /usr/include/c++/14/bits/uniform_int_dist.h \
+ /usr/include/c++/14/bits/stl_tempbuf.h \
+ /usr/include/c++/14/bits/ranges_algo.h \
+ /usr/include/c++/14/bits/ranges_algobase.h \
+ /usr/include/c++/14/pstl/glue_algorithm_defs.h \
+ /usr/include/c++/14/pstl/execution_defs.h /usr/include/c++/14/format \
+ /usr/include/c++/14/array /usr/include/c++/14/charconv \
  /usr/include/x86_64-linux-gnu/c++/14/bits/error_constants.h \
  /usr/include/c++/14/limits /usr/include/c++/14/locale \
  /usr/include/c++/14/bits/locale_classes.h \
@@ -196,16 +205,10 @@ CMakeFiles/ModalEditor.dir/src/EditorView.cpp.o: \
  /usr/include/libintl.h /usr/include/c++/14/bits/codecvt.h \
  /usr/include/c++/14/bits/locale_facets_nonio.tcc \
  /usr/include/c++/14/bits/locale_conv.h /usr/include/c++/14/span \
- /usr/include/c++/14/bits/ranges_algobase.h \
  /usr/include/c++/14/bits/unicode.h /usr/include/c++/14/cstdint \
  /usr/lib/gcc/x86_64-linux-gnu/14/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
- /usr/include/c++/14/bits/stl_algo.h \
- /usr/include/c++/14/bits/algorithmfwd.h \
- /usr/include/c++/14/bits/stl_heap.h \
- /usr/include/c++/14/bits/uniform_int_dist.h \
- /usr/include/c++/14/bits/stl_tempbuf.h \
  /usr/include/c++/14/bits/unicode-data.h /usr/include/c++/14/iostream \
  /usr/include/c++/14/ostream /usr/include/c++/14/ios \
  /usr/include/c++/14/bits/basic_ios.h \

@@ -156,4 +156,5 @@ CMakeFiles/ModalEditor.dir/src/CursorController.cpp.o: \
  /usr/lib/linux/uapi/x86/asm/ioctls.h /usr/include/asm-generic/ioctls.h \
  /usr/include/linux/ioctl.h /usr/lib/linux/uapi/x86/asm/ioctl.h \
  /usr/include/asm-generic/ioctl.h \
- /usr/include/x86_64-linux-gnu/bits/ioctl-types.h
+ /usr/include/x86_64-linux-gnu/bits/ioctl-types.h \
+ /home/jan/CLionProjects/ModalEditor/src/../include/TextDocument.h

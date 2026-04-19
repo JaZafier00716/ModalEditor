@@ -120,6 +120,7 @@ preinstall/fast:
 
 # clear depends
 depend:
+	$(CMAKE_COMMAND) -P /home/jan/CLionProjects/ModalEditor/build/CMakeFiles/VerifyGlobs.cmake
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
@@ -280,6 +281,30 @@ src/TerminalManagement.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/TerminalManagement.cpp.s
 .PHONY : src/TerminalManagement.cpp.s
 
+src/TextDocument.o: src/TextDocument.cpp.o
+.PHONY : src/TextDocument.o
+
+# target to build an object file
+src/TextDocument.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/TextDocument.cpp.o
+.PHONY : src/TextDocument.cpp.o
+
+src/TextDocument.i: src/TextDocument.cpp.i
+.PHONY : src/TextDocument.i
+
+# target to preprocess a source file
+src/TextDocument.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/TextDocument.cpp.i
+.PHONY : src/TextDocument.cpp.i
+
+src/TextDocument.s: src/TextDocument.cpp.s
+.PHONY : src/TextDocument.s
+
+# target to generate assembly for a file
+src/TextDocument.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModalEditor.dir/build.make CMakeFiles/ModalEditor.dir/src/TextDocument.cpp.s
+.PHONY : src/TextDocument.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -308,6 +333,9 @@ help:
 	@echo "... src/TerminalManagement.o"
 	@echo "... src/TerminalManagement.i"
 	@echo "... src/TerminalManagement.s"
+	@echo "... src/TextDocument.o"
+	@echo "... src/TextDocument.i"
+	@echo "... src/TextDocument.s"
 .PHONY : help
 
 
@@ -319,6 +347,7 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
+	$(CMAKE_COMMAND) -P /home/jan/CLionProjects/ModalEditor/build/CMakeFiles/VerifyGlobs.cmake
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

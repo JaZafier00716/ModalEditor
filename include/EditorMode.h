@@ -22,6 +22,9 @@ public:
 class IInsertModeContext : public IModeContext{
 public:
     ~IInsertModeContext() override = default;
+    virtual void insertCharacter(char c) = 0;
+    virtual void insertNewLine() = 0;
+    virtual void backspace() = 0;
 };
 
 class ICommandModeContext : public IModeContext {
@@ -44,14 +47,14 @@ public:
 class EditorMode {
 public:
     virtual ~EditorMode() = default;
-    virtual std::string_view getName() const = 0;
+    [[nodiscard]] virtual std::string_view getName() const = 0;
 };
 
 class InsertMode : public EditorMode {
 public:
     std::optional<ModeType> handle_input(IInsertModeContext& context, int key);
 
-    std::string_view getName() const override {
+    [[nodiscard]] std::string_view getName() const override {
         return "Insert";
     };
 };
@@ -60,7 +63,7 @@ class CommandMode : public EditorMode {
 public:
     std::optional<ModeType> handle_input(ICommandModeContext& context, int key);
 
-    std::string_view getName() const override {
+    [[nodiscard]] std::string_view getName() const override {
         return "Command";
     };
 };
@@ -69,7 +72,7 @@ class NormalMode : public EditorMode {
 public:
     std::optional<ModeType> handle_input(INormalModeContext& context, int key);
 
-    std::string_view getName() const override {
+    [[nodiscard]] std::string_view getName() const override {
         return "Normal";
     };
 };

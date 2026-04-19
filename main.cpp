@@ -20,7 +20,9 @@
  *
 */
 int main (int argc, char* argv[]) {
-    Editor editor;
+    const std::string file_name = (argc > 1) ? argv[1] : "";
+
+    Editor editor{file_name};
     editor.run();
 
     return 0;

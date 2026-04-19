@@ -9,16 +9,17 @@
 #include <vector>
 
 #include "TerminalManagement.h"
+#include "TextDocument.h"
 
 using std::string, std::vector;
 
 class CursorController {
 public:
     CursorController(
-        vector<string>& rows,
+        TextDocument& document,
         int2d& screen_size
     ) :
-    rows{rows},
+    document{document},
     screen_size{screen_size} {};
 
     void moveCursor(int key);
@@ -35,7 +36,7 @@ private:
     [[nodiscard]] int getRowLength(int y) const;
     void clampCursorPosition();
 
-    vector<string>& rows;
+    TextDocument& document;
     int2d cursor_pos{0,0};
     int desired_cursor_pos{0};
     int2d& screen_size;

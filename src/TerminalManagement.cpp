@@ -73,7 +73,7 @@ namespace terminal_manager {
     }
 
     int getWindowSize(int2d& size) {
-        struct winsize ws;
+        struct winsize ws{};
         if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1) {
             return -1;
         }
@@ -83,7 +83,7 @@ namespace terminal_manager {
     }
 
     int readKey() {
-        int bytes_read;
+        long bytes_read;
         char c;
 
         while ((bytes_read = read(STDIN_FILENO, &c, 1)) != 1) {
@@ -137,6 +137,7 @@ namespace terminal_manager {
                             case '6': return static_cast<int>(EditorKey::PAGE_DOWN);    // Page Down key
                             case '7': return static_cast<int>(EditorKey::HOME_KEY);     // Home key (alternative)
                             case '8': return static_cast<int>(EditorKey::END_KEY);      // End key (alternative)
+                            default: break;
                         }
                     }
                 }
@@ -161,6 +162,7 @@ namespace terminal_manager {
                         case 'D': return static_cast<int>(EditorKey::ARROW_LEFT);   // Left arrow
                         case 'F': return static_cast<int>(EditorKey::END_KEY);      // End key (alternative)
                         case 'H': return static_cast<int>(EditorKey::HOME_KEY);
+                        default: break;
                     }
                 }
             }
@@ -169,6 +171,7 @@ namespace terminal_manager {
                 switch (seq[1]) {
                     case 'F': return static_cast<int>(EditorKey::END_KEY);      // End key (alternative
                     case 'H': return static_cast<int>(EditorKey::HOME_KEY);     // Home key (alternative)
+                    default: break;
                 }
             }
 

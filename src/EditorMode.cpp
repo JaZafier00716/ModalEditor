@@ -10,6 +10,21 @@ std::optional<ModeType> InsertMode::handle_input(IInsertModeContext& context, co
         context.appendDebugMessage("ESC: Switching to normal mode");
         return ModeType::NORMAL;
     }
+
+    if (key == '\r' || key == '\n') {
+        context.insertNewLine();
+        return std::nullopt;
+    }
+
+    if (key == static_cast<int>(EditorKey::BACKSPACE) || key == static_cast<int>(EditorKey::BACKSPACE_ALT)) {
+        context.backspace();
+        return std::nullopt;
+    }
+
+    if (key >= 32 && key <= 126) {
+        context.insertCharacter(static_cast<char>(key));
+    }
+
     return std::nullopt;
 }
 

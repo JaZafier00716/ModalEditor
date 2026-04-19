@@ -42,7 +42,7 @@ namespace terminal_control_sequences {
     constexpr std::string_view cursor_start = "\x1B[H";
     constexpr std::string_view hide_cursor = "\x1B[?25l";
     constexpr std::string_view show_cursor = "\x1B[?25h";
-    constexpr std::string_view clear_to_eol = "\x1B[2K";
+    constexpr std::string_view clear_to_eol = "\x1B[K";
     constexpr std::string_view new_line = "\r\n";
 }
 

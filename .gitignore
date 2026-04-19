@@ -1,0 +1,29 @@
+# Build directories
+/build/
+/cmake-build-*/
+
+# CMake generated files
+/CMakeCache.txt
+/cmake_install.cmake
+/Makefile
+/compile_commands.json
+/CMakeFiles/
+/Testing/
+
+# CLion / JetBrains
+/.idea/
+*.iml
+
+# Binaries and object files
+*.o
+*.obj
+*.so
+*.a
+*.out
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+.DS_Store
+

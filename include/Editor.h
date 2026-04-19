@@ -13,6 +13,8 @@
 #include "TerminalManagement.h"
 #include "EditorMode.h"
 #include "CursorController.h"
+#include "EditorView.h"
+#include "TextDocument.h"
 
 using std::string, std::vector;
 
@@ -30,12 +32,19 @@ private:
 
         void appendDebugMessage(std::string_view message) override;
 
+        // INSERT MODE
+        void insertCharacter(char c) override;
+        void insertNewLine() override;
+        void backspace() override;
+
+        // NORMAL MODE
         void moveCursor(int key) override;
         void movePage(int key) override;
         void moveCursorLineStart() override;
         void moveCursorLineEnd() override;
         void moveCursorRightOne() override;
 
+        // COMMAND MODE
         void requestQuit() override;
 
     private:
@@ -44,37 +53,16 @@ private:
 
 
     void processKeypress();
-    void refreshScreen();
-
-    void appendDebugMessage(std::string_view message);
     void requestQuit();
 
-    // Output methods
-    void printRows(std::string &s);
-    void scroll();
-    void printMessage(std::string_view message, ...);
-
-    [[nodiscard]] int2d getCursorPosition() const;
-    std::string getRelativeLineNumber(const int y) const;
-
-    CursorController cursor_controller;
-    vector<string> rows;
-
+    TextDocument document;
     int2d screen_size{0,0};
-    int render_pos{0}; // for tab rendering
-    int2d offset{0,0}; // col and row offset
-    int line_num_offset{0}; // offset for line numbers
-    string file_name;
-    string output_buffer;
-    string debug_info_message;
+    CursorController cursor_controller;
+    EditorView view;
 
     std::variant<NormalMode, InsertMode, CommandMode> current_mode{NormalMode{}};
     ModeContextGate mode_context{*this};
     bool should_exit{false};
-
-    // Config
-    int tab_spaces = 4;
-    bool line_numbers = true;
 };
 
 #endif //MODALEDITOR_EDITOR_H

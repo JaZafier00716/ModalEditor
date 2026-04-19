@@ -1,3 +1,0 @@
-/home/jan/CLionProjects/ModalEditor/build/CMakeFiles/ModalEditor.dir
-/home/jan/CLionProjects/ModalEditor/build/CMakeFiles/edit_cache.dir
-/home/jan/CLionProjects/ModalEditor/build/CMakeFiles/rebuild_cache.dir

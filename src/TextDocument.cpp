@@ -7,14 +7,21 @@
 #include <algorithm>
 #include <fstream>
 
+/** @brief Returns the number of lines stored in the document. */
 size_t TextDocument::lineCount() const {
     return lines.size();
 }
 
+/** @brief Returns whether the document currently has no lines. */
 bool TextDocument::empty() const {
     return lines.empty();
 }
 
+/**
+ * @brief Returns raw length for a line index.
+ * @param index Line index.
+ * @return Raw character length, or 0 for invalid index.
+ */
 size_t TextDocument::lineRawLength(const int index) const {
     if (index < 0 || static_cast<size_t>(index) >= lines.size()) {
         return 0;
@@ -22,6 +29,11 @@ size_t TextDocument::lineRawLength(const int index) const {
     return lines[static_cast<size_t>(index)].raw.size();
 }
 
+/**
+ * @brief Returns rendered length for a line index.
+ * @param index Line index.
+ * @return Rendered character length, or 0 for invalid index.
+ */
 size_t TextDocument::lineRenderedLength(const int index) const {
     if (index < 0 || static_cast<size_t>(index) >= lines.size()) {
         return 0;
@@ -29,6 +41,11 @@ size_t TextDocument::lineRenderedLength(const int index) const {
     return lines[static_cast<size_t>(index)].rendered.size();
 }
 
+/**
+ * @brief Returns raw text for a line index.
+ * @param index Line index.
+ * @return Raw line text copy, or empty string for invalid index.
+ */
 std::string TextDocument::lineRawText(const int index) const {
     if (index < 0 || static_cast<size_t>(index) >= lines.size()) {
         return "";
@@ -36,6 +53,11 @@ std::string TextDocument::lineRawText(const int index) const {
     return lines[static_cast<size_t>(index)].raw;
 }
 
+/**
+ * @brief Returns rendered text view for a line index.
+ * @param index Line index.
+ * @return Rendered line view, or empty view for invalid index.
+ */
 std::string_view TextDocument::lineRenderedTextView(const int index) const {
     if (index < 0 || static_cast<size_t>(index) >= lines.size()) {
         return "";
@@ -43,6 +65,12 @@ std::string_view TextDocument::lineRenderedTextView(const int index) const {
     return lines[static_cast<size_t>(index)].rendered;
 }
 
+/**
+ * @brief Converts a raw column into rendered-space column.
+ * @param index Line index.
+ * @param raw_column Raw character column.
+ * @return Rendered column value with tab expansion applied.
+ */
 int TextDocument::renderColumnFromRaw(const int index, const int raw_column) const {
     if (index < 0 || static_cast<size_t>(index) >= lines.size()) {
         return 0;
@@ -59,6 +87,13 @@ int TextDocument::renderColumnFromRaw(const int index, const int raw_column) con
     return render_col;
 }
 
+/**
+ * @brief Inserts a character at a specific line and column.
+ * @param line Target line.
+ * @param column Target raw column.
+ * @param c Character to insert.
+ * @return True on success.
+ */
 bool TextDocument::insertCharAt(const int line, const int column, const char c) {
     if (line < 0) {
         return false;
@@ -80,6 +115,12 @@ bool TextDocument::insertCharAt(const int line, const int column, const char c) 
     return true;
 }
 
+/**
+ * @brief Inserts a newline by splitting a line at a column.
+ * @param line Target line.
+ * @param column Split column.
+ * @return True on success.
+ */
 bool TextDocument::insertNewlineAt(const int line, const int column) {
     if (line < 0) {
         return false;
@@ -110,6 +151,12 @@ bool TextDocument::insertNewlineAt(const int line, const int column) {
     return true;
 }
 
+/**
+ * @brief Erases the character immediately before a cursor location.
+ * @param line Target line.
+ * @param column Cursor raw column.
+ * @return True on success.
+ */
 bool TextDocument::eraseCharBefore(const int line, const int column) {
     if (line < 0 || static_cast<size_t>(line) >= lines.size() || column <= 0) {
         return false;
@@ -128,6 +175,11 @@ bool TextDocument::eraseCharBefore(const int line, const int column) {
 }
 
 
+/**
+ * @brief Rebuilds rendered row text from raw row text.
+ * @param raw_row Source raw row.
+ * @param rendered_row Destination rendered row.
+ */
 void TextDocument::updateRow(const std::string& raw_row, std::string& rendered_row) const {
     rendered_row.clear();
 
@@ -141,6 +193,12 @@ void TextDocument::updateRow(const std::string& raw_row, std::string& rendered_r
 }
 
 
+/**
+ * @brief Loads document contents from a text file.
+ * @param filename File path to read.
+ * @param error_message Output error message on failure.
+ * @return True on success.
+ */
 bool TextDocument::loadFromFile(const std::string& filename, std::string& error_message) {
     std::ifstream ifs(filename.c_str(), std::ios::in);
 

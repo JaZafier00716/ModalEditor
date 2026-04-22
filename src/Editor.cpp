@@ -5,8 +5,13 @@
 #include <iostream>
 #include <ranges>
 
+/** @brief Constructs an editor with no initial file path. */
 Editor::Editor() : Editor("") {}
 
+/**
+ * @brief Constructs an editor and optionally loads a file.
+ * @param filename Path to file to open, or empty for a new buffer.
+ */
 Editor::Editor(const string& filename)
 : cursor_controller{document, screen_size},
 view{document, screen_size, cursor_controller}
@@ -32,6 +37,7 @@ view{document, screen_size, cursor_controller}
 }
 
 
+/** @brief Runs the main render/input loop until exit is requested. */
 void Editor::run() {
     // terminal_manager::clear_screen();
     while (!should_exit) {
@@ -43,15 +49,17 @@ void Editor::run() {
 
 
 
+/** @brief Requests termination of the main editor loop. */
 void Editor::requestQuit() {
     should_exit = true;
 }
 
+/** @brief Reads one key event and dispatches it to the active mode handler. */
 void Editor::processKeypress() {
-    const auto c = terminal_manager::readKey();
-    view.appendDebugMessage(std::format("Key pressed: {}", c));
+    const auto key = terminal_manager::readKey();
+    view.appendDebugMessage(std::format("Key pressed: {}", terminal_manager::keyToDebugString(key)));
     const auto next_mode = std::visit([&](auto& mode) -> std::optional<ModeType> {
-        return mode.handle_input(mode_context, c);
+        return mode.handle_input(mode_context, key);
     }, current_mode);
 
     if (!next_mode.has_value()) {
@@ -71,10 +79,18 @@ void Editor::processKeypress() {
     }
 }
 
+/**
+ * @brief Forwards mode debug/status messages to the view.
+ * @param message Message to append.
+ */
 void Editor::ModeContextGate::appendDebugMessage(const std::string_view message) {
     editor.view.appendDebugMessage(message);
 }
 
+/**
+ * @brief Inserts a character at the current cursor position.
+ * @param c Character to insert.
+ */
 void Editor::ModeContextGate::insertCharacter(const char c) {
     const auto [col, line] = editor.cursor_controller.getCursorPosition();
     if (editor.document.insertCharAt(line, col, c)) {
@@ -82,14 +98,16 @@ void Editor::ModeContextGate::insertCharacter(const char c) {
     }
 }
 
+/** @brief Inserts a newline and moves the cursor to the next line start. */
 void Editor::ModeContextGate::insertNewLine() {
     const auto [col, line] = editor.cursor_controller.getCursorPosition();
     if (editor.document.insertNewlineAt(line, col)) {
-        editor.cursor_controller.moveCursor('j');
+        editor.cursor_controller.applyMotion(editor_motion::Down{});
         editor.cursor_controller.setCursorPositionX(0);
     }
 }
 
+/** @brief Performs a backward delete at the current cursor position. */
 void Editor::ModeContextGate::backspace() {
     const auto [col, line] = editor.cursor_controller.getCursorPosition();
     if (editor.document.eraseCharBefore(line, col)) {
@@ -97,28 +115,21 @@ void Editor::ModeContextGate::backspace() {
     }
 }
 
-
-void Editor::ModeContextGate::moveCursor(const int key) {
-    editor.cursor_controller.moveCursor(key);
-}
-
-void Editor::ModeContextGate::movePage(const int key) {
-    editor.cursor_controller.movePage(key);
-}
-
-void Editor::ModeContextGate::moveCursorLineStart() {
-    editor.cursor_controller.moveCursorLineStart();
-}
-
-void Editor::ModeContextGate::moveCursorLineEnd() {
-    editor.cursor_controller.moveCursorLineEnd();
-}
-
+/** @brief Moves the cursor one position to the right. */
 void Editor::ModeContextGate::moveCursorRightOne() {
     editor.cursor_controller.moveCursorRightOne();
 }
 
+/** @brief Requests editor shutdown through the owning Editor instance. */
 void Editor::ModeContextGate::requestQuit() {
     editor.requestQuit();
+}
+
+/**
+ * @brief Applies a motion command through the cursor controller.
+ * @param motion Motion to apply.
+ */
+void Editor::ModeContextGate::applyMotion(const editor_motion::Motion& motion) {
+    editor.cursor_controller.applyMotion(motion);
 }
 

@@ -14,12 +14,13 @@
  *      - allow arrows for movement
 */
 
-// TODO:
-/*
- * Load file from terminal param
- *
-*/
-int main (int argc, char* argv[]) {
+/**
+ * @brief Program entry point.
+ * @param argc Number of command-line arguments.
+ * @param argv Command-line argument values.
+ * @return Process exit status code.
+ */
+int main (const int argc, char* argv[]) {
     const std::string file_name = (argc > 1) ? argv[1] : "";
 
     Editor editor{file_name};

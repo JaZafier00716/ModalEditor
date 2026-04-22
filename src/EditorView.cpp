@@ -9,6 +9,10 @@
 #include <ranges>
 #include "../include/TerminalManagement.h"
 
+/**
+ * @brief Renders the full frame and positions the terminal cursor.
+ * @param current_mode Active editor mode used for status display.
+ */
 void EditorView::refreshScreen(const std::variant<NormalMode, InsertMode, CommandMode>& current_mode) {
     terminal_manager::clear_screen();
     scroll();
@@ -46,19 +50,35 @@ void EditorView::refreshScreen(const std::variant<NormalMode, InsertMode, Comman
     debug_info_message.clear();
 }
 
+/**
+ * @brief Sets the status-bar file name.
+ * @param text File name to display.
+ */
 void EditorView::setFileName(const std::string_view text) {
     file_name = text;
 }
 
+/**
+ * @brief Appends a debug message to the status area buffer.
+ * @param message Message to append.
+ */
 void EditorView::appendDebugMessage(const std::string_view message) {
     debug_info_message += message;
     debug_info_message += " | ";
 }
 
+/**
+ * @brief Enables or disables rendering of line numbers.
+ * @param enabled True to render line numbers.
+ */
 void EditorView::setLineNumbersEnabled(const bool enabled) {
     line_numbers = enabled;
 }
 
+/**
+ * @brief Renders all visible rows into the provided string buffer.
+ * @param s Output buffer to append rendered rows to.
+ */
 void EditorView::printRows(string& s) {
     const auto total_rows = document.lineCount();
 
@@ -106,6 +126,7 @@ void EditorView::printRows(string& s) {
     }
 }
 
+/** @brief Adjusts viewport offsets to keep the cursor in view. */
 void EditorView::scroll() {
     auto [col_pos, row_pos] = cursor_controller.getCursorPosition();
     render_pos = document.renderColumnFromRaw(row_pos, col_pos);
@@ -136,6 +157,11 @@ void EditorView::scroll() {
     }
 }
 
+/**
+ * @brief Formats either absolute (current line) or relative line number text.
+ * @param y Document row index.
+ * @return Formatted line number field, or empty string when disabled.
+ */
 string EditorView::getRelativeLineNumber(const int y) const {
     if (!line_numbers) {
         return {};

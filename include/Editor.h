@@ -59,6 +59,7 @@ private:
         // COMMAND MODE
         /** @brief Requests editor shutdown. */
         void requestQuit() override;
+        void saveToFile() override;
 
     private:
         Editor& editor;

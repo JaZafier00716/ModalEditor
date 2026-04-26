@@ -80,7 +80,7 @@ int TextDocument::renderColumnFromRaw(const int index, const int raw_column) con
     const auto clamped_raw_col = std::clamp(raw_column, 0, static_cast<int>(raw_line.size()));
     int render_col = 0;
 
-    for (size_t i = 0; i < clamped_raw_col; ++i) {
+    for (int i = 0; i < clamped_raw_col; ++i) {
         render_col += raw_line[i] == '\t' ? tab_spaces : 1;
     }
 
@@ -230,5 +230,35 @@ bool TextDocument::loadFromFile(const std::string& filename, std::string& error_
     error_message.clear();
     ifs.close();
 
+    return true;
+}
+
+bool TextDocument::saveToFile(const std::string& filename, std::string& error_message) const {
+    const std::string temp_filename = filename+".tmp";
+    std::ofstream ofs(temp_filename, std::ios::out | std::ios::binary);
+
+    if (!ofs.is_open()) {
+        error_message = "Failed to open file for writing";
+        return false;
+    }
+
+    for (const auto& [raw, rendered] : lines) {
+        ofs << raw << "\n";
+    }
+    ofs.close();
+    if (ofs.fail()) {
+        error_message = "Failed while writing to disk";
+        return false;
+    }
+
+    if (std::rename(temp_filename.c_str(), filename.c_str()) != 0) {
+        error_message = "Failed to rename temporary file";
+        return false;
+    }
+
+    
+
+    error_message.clear();
+    ofs.close();
     return true;
 }

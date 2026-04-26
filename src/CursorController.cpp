@@ -34,76 +34,86 @@ namespace {
     }
 }
 
+void CursorController::operator()(const auto& value) {
+    using T = std::decay_t<decltype(value)>;
+    if constexpr (std::is_same_v<T, std::monostate>) {
+        // No motion - do nothing
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::Up>) {
+        // Move UP
+        moveUp();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::Down>) {
+        // Move DOWN
+        moveDown();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::Right>) {
+        // Move RIGHT
+        moveRight();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::Left>) {
+        // Move LEFT
+        moveLeft();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::PageUp>) {
+        // Move PAGE UP
+        movePageUp();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::PageDown>) {
+        // Move PAGE DOWN
+        movePageDown();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::LineStart>) {
+        moveCursorLineStart();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::LineEnd>) {
+        moveCursorLineEnd();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::FileStart>) {
+        moveFileStart();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::FileEnd>) {
+        moveFileEnd();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::WordForward>) {
+        moveWordForward();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::WordBackward>) {
+        moveWordBackward();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::ScreenTop>) {
+        moveScreenTop();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::ScreenMiddle>) {
+        moveScreenMiddle();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::ScreenBottom>) {
+        moveScreenBottom();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::ParagraphForward>) {
+        moveParagraphForward();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::ParagraphBackward>) {
+        moveParagraphBackward();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::MatchingBracket>) {
+        moveToMatchingBracket();
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::MatchingBrace>) {
+        moveToMatchingBrace();
+    }
+    else {
+        static_assert(unsupported_type<T>, "Missing branch for type");
+    }
+}
+
+
 /**
  * @brief Applies a motion variant and updates cursor state accordingly.
  * @param motion Motion command to execute.
  */
 void CursorController::applyMotion(const editor_motion::Motion& motion) {
-    std::visit([&](const auto& value) {
-        using T = std::decay_t<decltype(value)>;
-
-        if constexpr (std::is_same_v<T, editor_motion::Up>) {
-            // Move UP
-            moveUp();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::Down>) {
-            // Move DOWN
-            moveDown();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::Right>) {
-            // Move RIGHT
-            moveRight();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::Left>) {
-            // Move LEFT
-            moveLeft();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::PageUp>) {
-            // Move PAGE UP
-            movePageUp();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::PageDown>) {
-            // Move PAGE DOWN
-            movePageDown();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::LineStart>) {
-            moveCursorLineStart();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::LineEnd>) {
-            moveCursorLineEnd();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::FileStart>) {
-            moveFileStart();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::FileEnd>) {
-            moveFileEnd();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::WordForward>) {
-            moveWordForward();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::WordBackward>) {
-            moveWordBackward();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::ScreenTop>) {}
-        else if constexpr (std::is_same_v<T, editor_motion::ScreenMiddle>) {
-            moveScreenMiddle();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::ScreenBottom>) {
-            moveScreenBottom();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::ParagraphForward>) {
-            moveParagraphForward();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::ParagraphBackward>) {
-            moveParagraphBackward();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::MatchingBracket>) {
-            moveToMatchingBracket();
-        }
-        else if constexpr (std::is_same_v<T, editor_motion::MatchingBrace>) {
-            moveToMatchingBrace();
-        }
-    }, motion);
+    std::visit(*this, motion);
 
     clampCursorPosition();
 }

@@ -17,6 +17,8 @@ if(ENABLE_SANITIZER)
     message(STATUS "AddressSanitizer enabled")
 endif()
 
+add_compile_options(-Wall -Wextra -Wpedantic)
+
 # CONFIGURE_DEPENDS ensures CMake re-scans the folders if you add/remove files
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp" "main.cpp")
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h")

@@ -39,7 +39,7 @@ public:
 
     /** @brief Loads document contents from disk. */
     bool loadFromFile(const std::string& filename, std::string& error_message);
-    // TODO: saveToFile
+    bool saveToFile(const std::string& filename, std::string& error_message) const;
 
 private:
     /** @brief Rebuilds the rendered line from its raw text representation. */

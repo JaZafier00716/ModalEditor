@@ -209,6 +209,11 @@ std::optional<ModeType> CommandMode::handle_input(ICommandModeContext& context, 
         context.appendDebugMessage("q: Requesting editor shutdown");
         context.requestQuit();
     }
+    if (c != nullptr && c->value == 'w') {
+        // Save the file
+        context.appendDebugMessage("w: Requesting file save");
+        context.saveToFile();
+    }
     return std::nullopt;
 }
 

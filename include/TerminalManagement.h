@@ -155,9 +155,9 @@ namespace editor_motion {
     struct MatchingBrace{};
 
 
-    struct JumpToLine {
-        int line_number;
-    };
+    // struct JumpToLine {
+    //     int line_number;
+    // };
 
     /** @brief Variant of all supported cursor motions. */
     using Motion = std::variant<
@@ -169,8 +169,8 @@ namespace editor_motion {
         WordForward, WordBackward,
         ScreenTop, ScreenMiddle, ScreenBottom,
         ParagraphForward, ParagraphBackward,
-        MatchingBracket, MatchingBrace,
-        JumpToLine
+        MatchingBracket, MatchingBrace//,
+        // JumpToLine
     >;
 }
 

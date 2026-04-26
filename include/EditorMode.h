@@ -47,6 +47,7 @@ public:
     ~ICommandModeContext() override = default;
     /** @brief Requests graceful editor shutdown. */
     virtual void requestQuit() = 0;
+    virtual void saveToFile() = 0;
 };
 
 /** @brief Context operations available while in normal mode. */

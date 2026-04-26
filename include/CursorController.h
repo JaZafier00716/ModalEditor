@@ -46,6 +46,7 @@ public:
     /** @brief Returns the preferred horizontal cursor position when moving vertically. */
     [[nodiscard]] int getDesiredCursorPos() const { return desired_cursor_pos; }
 
+    void operator()(const auto& value);
 private:
     /** @brief Returns the raw character length of the given row. */
     [[nodiscard]] int getRowLength(int y) const;
@@ -71,10 +72,14 @@ private:
     void moveToMatchingBracket();
     void moveToMatchingBrace();
 
+
     TextDocument& document;
     int2d cursor_pos{0,0};
     int desired_cursor_pos{0};
     int2d& screen_size;
+
+    template<typename T>
+    constexpr static bool unsupported_type = false;
 };
 
 #endif //MODALEDITOR_CURSORCONTROLLER_H

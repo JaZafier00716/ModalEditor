@@ -43,6 +43,8 @@ public:
     /** @brief Enables or disables rendering of line numbers. */
     void setLineNumbersEnabled(bool enabled);
 
+    [[nodiscard]] string getFileName() const { return file_name; }
+
 private:
     /** @brief Renders visible text rows and filler rows into the output buffer. */
     void printRows(string &s);

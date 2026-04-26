@@ -125,6 +125,17 @@ void Editor::ModeContextGate::requestQuit() {
     editor.requestQuit();
 }
 
+void Editor::ModeContextGate::saveToFile() {
+    string debug_message;
+    editor.document.saveToFile(editor.view.getFileName(), debug_message);
+    if (debug_message.empty()) {
+        debug_message = "File saved successfully";
+    } else {
+        debug_message = std::format("File save failed: {}", debug_message);
+    }
+    editor.view.appendDebugMessage(debug_message);
+}
+
 /**
  * @brief Applies a motion command through the cursor controller.
  * @param motion Motion to apply.

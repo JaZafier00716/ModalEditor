@@ -89,7 +89,7 @@ void EditorView::printRows(string& s) {
     for (int i = 0; i < screen_size.y; ++i) {
         const auto file_y = i + offset.y;
 
-        if (file_y < total_rows) {
+        if (file_y < static_cast<int>(total_rows)) {
             // Draw file content
             if (line_numbers) {
                 s += terminal_control_sequences::dimmed_color;
@@ -99,7 +99,7 @@ void EditorView::printRows(string& s) {
 
             const auto row = document.lineRenderedTextView(file_y);
 
-            if (available_width > 0 && offset.x < row.size()) {
+            if (available_width > 0 && offset.x < static_cast<int>(row.size())) {
                 std::string_view row_view = row;
                 // Cut string before cursor
                 row_view.remove_prefix(offset.x);

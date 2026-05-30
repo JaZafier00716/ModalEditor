@@ -35,6 +35,14 @@ public:
     bool insertNewlineAt(int line, int column);
     /** @brief Removes the character before the provided cursor position. */
     bool eraseCharBefore(int line, int column);
+    /** @brief Returns a copy of a character-wise range using an exclusive end position. */
+    [[nodiscard]] std::string copyRange(int start_line, int start_column, int end_line, int end_column) const;
+    /** @brief Returns a copy of a line-wise inclusive line range. */
+    [[nodiscard]] std::string copyLineRange(int start_line, int end_line) const;
+    /** @brief Removes a character-wise range using an exclusive end position. */
+    bool eraseRange(int start_line, int start_column, int end_line, int end_column);
+    /** @brief Removes a line-wise inclusive line range. */
+    bool eraseLineRange(int start_line, int end_line);
     // TODO: eraseCharAfter
 
     /** @brief Loads document contents from disk. */

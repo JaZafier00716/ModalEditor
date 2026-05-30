@@ -4,10 +4,16 @@
 
 #include "../include/EditorMode.h"
 
-#include <array>
+#include <cctype>
+#include <type_traits>
 
 namespace {
-    struct MoveByMotion { editor_motion::Motion motion{}; };
+    struct MotionCommand {
+        editor_motion::Motion motion{};
+        bool linewise{false};
+        bool inclusive{false};
+        bool uses_count{true};
+    };
 
     struct EnterInsert {};
     struct EnterInsertAtLineStart{};
@@ -15,21 +21,6 @@ namespace {
     struct EnterInsertAfterCursor{};
 
     struct EnterCommandMode{};
-
-    using NormalCommand = std::variant<
-        std::monostate,
-        MoveByMotion,
-        EnterInsert,
-        EnterInsertAtLineStart,
-        EnterInsertAtLineEnd,
-        EnterInsertAfterCursor,
-        EnterCommandMode
-    >;
-
-    struct NormalKeyBinding {
-        std::string_view key_id;
-        NormalCommand command;
-    };
 
     template<typename T>
     /**
@@ -51,102 +42,136 @@ namespace {
     constexpr bool hasStaticNameV = hasStaticName<T>::value;
 
     /**
-     * @brief Builds a normalized key identifier used by normal-mode bindings.
+     * @brief Extracts a plain character key for normal-mode command parsing.
      * @param key Parsed key event.
-     * @return Binding id string (e.g. "char:h") or std::nullopt if unsupported.
+     * @return Printable character when no modifiers are active.
      */
-    std::optional<std::string> normalModeKeyId(const editor_input::Key& key) {
-        return std::visit([](const auto& value) -> std::optional<std::string> {
+    std::optional<char> normalModeCharacter(const editor_input::Key& key) {
+        if (const auto* c = std::get_if<editor_input::Character>(&key); c != nullptr && hasNoModifiers(*c)) {
+            return c->value;
+        }
+        return std::nullopt;
+    }
+
+    /**
+     * @brief Maps non-character keys to motion commands.
+     * @param key Parsed key event.
+     * @param operator_pending True when resolving an operator target.
+     * @return Motion command, or std::nullopt if the key is not a motion.
+     */
+    std::optional<MotionCommand> motionFromSpecialKey(const editor_input::Key& key, const bool operator_pending) {
+        return std::visit([operator_pending](const auto& value) -> std::optional<MotionCommand> {
             using T = std::decay_t<decltype(value)>;
 
-            if constexpr (std::is_same_v<T, editor_input::Character>) {
-                if (hasNoModifiers(value)) {
-                    return std::string{"char:"} + value.value;
+            if constexpr (std::is_same_v<T, editor_input::ArrowUp>) {
+                if (!hasNoModifiers(value)) {
+                    return std::nullopt;
                 }
-                return std::nullopt;
-            } else if constexpr (hasStaticNameV<T>) {
-                if (hasNoModifiers(value)) {
-                    return std::string{T::name};
+                return MotionCommand{editor_motion::Up{}, operator_pending, false, true};
+            }
+            else if constexpr (std::is_same_v<T, editor_input::ArrowDown>) {
+                if (!hasNoModifiers(value)) {
+                    return std::nullopt;
+                }
+                return MotionCommand{editor_motion::Down{}, operator_pending, false, true};
+            }
+            else if constexpr (std::is_same_v<T, editor_input::ArrowLeft>) {
+                if (!hasNoModifiers(value)) {
+                    return std::nullopt;
+                }
+                return MotionCommand{editor_motion::Left{}, false, false, true};
+            }
+            else if constexpr (std::is_same_v<T, editor_input::ArrowRight>) {
+                if (!hasNoModifiers(value)) {
+                    return std::nullopt;
+                }
+                return MotionCommand{editor_motion::Right{}, false, false, true};
+            }
+            else if constexpr (std::is_same_v<T, editor_input::PageUp>) {
+                if (!hasNoModifiers(value)) {
+                    return std::nullopt;
+                }
+                return MotionCommand{editor_motion::PageUp{}, operator_pending, false, true};
+            }
+            else if constexpr (std::is_same_v<T, editor_input::PageDown>) {
+                if (!hasNoModifiers(value)) {
+                    return std::nullopt;
+                }
+                return MotionCommand{editor_motion::PageDown{}, operator_pending, false, true};
+            }
+            else if constexpr (std::is_same_v<T, editor_input::Home>) {
+                if (!hasNoModifiers(value)) {
+                    return std::nullopt;
+                }
+                return MotionCommand{editor_motion::LineStart{}, false, false, false};
+            }
+            else if constexpr (std::is_same_v<T, editor_input::End>) {
+                if (!hasNoModifiers(value)) {
+                    return std::nullopt;
+                }
+                return MotionCommand{editor_motion::LineEnd{}, false, false, false};
+            }
+            else if constexpr (hasStaticNameV<T>) {
+                if (!hasNoModifiers(value)) {
+                    return std::nullopt;
                 }
                 return std::nullopt;
             }
-            return std::nullopt;
+            else {
+                return std::nullopt;
+            }
         }, key);
     }
 
     /**
-     * @brief Returns the default movement and mode-switch key map.
-     * @return Static table of key bindings.
+     * @brief Maps normal-mode characters to motion commands.
+     * @param c Character key.
+     * @param operator_pending True when resolving an operator target.
+     * @return Motion command, or std::nullopt if the key is not a motion.
      */
-    const auto& defaultNormalModeKeyBindings() {
-        static const std::array<NormalKeyBinding, 24> bindings{{
-            {"ArrowUp", MoveByMotion{editor_motion::Up{}}},
-            {"ArrowDown", MoveByMotion{editor_motion::Down{}}},
-            {"ArrowRight", MoveByMotion{editor_motion::Right{}}},
-            {"ArrowLeft", MoveByMotion{editor_motion::Left{}}},
-            {"PageUp", MoveByMotion{editor_motion::PageUp{}}},
-            {"PageDown", MoveByMotion{editor_motion::PageDown{}}},
-            {"Home", MoveByMotion{editor_motion::LineStart{}}},
-            {"End", MoveByMotion{editor_motion::LineEnd{}}},
-            {"char:k", MoveByMotion{editor_motion::Up{}}},
-            {"char:j", MoveByMotion{editor_motion::Down{}}},
-            {"char:l", MoveByMotion{editor_motion::Right{}}},
-            {"char:h", MoveByMotion{editor_motion::Left{}}},
-            {"char:g", MoveByMotion{editor_motion::FileStart{}}},
-            {"char:G", MoveByMotion{editor_motion::FileEnd{}}},
-            {"char:w", MoveByMotion{editor_motion::WordForward{}}},
-            {"char:b", MoveByMotion{editor_motion::WordBackward{}}},
-            {"char:H", MoveByMotion{editor_motion::ScreenTop{}}},
-            {"char:M", MoveByMotion{editor_motion::ScreenMiddle{}}},
-            {"char:L", MoveByMotion{editor_motion::ScreenBottom{}}},
-            {"char:{", MoveByMotion{editor_motion::ParagraphBackward{}}},
-            {"char:}", MoveByMotion{editor_motion::ParagraphForward{}}},
-            {"char:%", MoveByMotion{editor_motion::MatchingBracket{}}},
-            {"char:&", MoveByMotion{editor_motion::MatchingBrace{}}},
-            {"char:i", EnterInsert{}},
-        }};
-        return bindings;
+    std::optional<MotionCommand> motionFromCharacter(const char c, const bool operator_pending) {
+        switch (c) {
+            case 'h': return MotionCommand{editor_motion::Left{}, false, false, true};
+            case 'j': return MotionCommand{editor_motion::Down{}, operator_pending, false, true};
+            case 'k': return MotionCommand{editor_motion::Up{}, operator_pending, false, true};
+            case 'l': return MotionCommand{editor_motion::Right{}, false, false, true};
+            case '0': return MotionCommand{editor_motion::LineStart{}, false, false, false};
+            case '$': return MotionCommand{editor_motion::LineEnd{}, false, false, false};
+            case 'G': return MotionCommand{editor_motion::FileEnd{}, true, false, false};
+            case 'w': return MotionCommand{editor_motion::WordForward{.big = false}, false, false, true};
+            case 'W': return MotionCommand{editor_motion::WordForward{.big = true}, false, false, true};
+            case 'b': return MotionCommand{editor_motion::WordBackward{.big = false}, false, false, true};
+            case 'B': return MotionCommand{editor_motion::WordBackward{.big = true}, false, false, true};
+            case 'e': return MotionCommand{editor_motion::WordEnd{.big = false}, false, true, true};
+            case 'E': return MotionCommand{editor_motion::WordEnd{.big = true}, false, true, true};
+            case 'H': return MotionCommand{editor_motion::ScreenTop{}, false, false, false};
+            case 'M': return MotionCommand{editor_motion::ScreenMiddle{}, false, false, false};
+            case 'L': return MotionCommand{editor_motion::ScreenBottom{}, false, false, false};
+            case '{': return MotionCommand{editor_motion::ParagraphBackward{}, true, false, true};
+            case '}': return MotionCommand{editor_motion::ParagraphForward{}, true, false, true};
+            case '%': return MotionCommand{editor_motion::MatchingBracket{}, false, true, false};
+            case '&': return MotionCommand{editor_motion::MatchingBrace{}, false, true, false};
+            default: return std::nullopt;
+        }
     }
 
     /**
-     * @brief Returns the default action-only key map for normal mode.
-     * @return Static table of key bindings.
+     * @brief Returns the effective count value for a numeric prefix.
+     * @param count Accumulated count digits.
+     * @return Prefix count, defaulting to 1.
      */
-    const auto& defaultNormalModeActionBindings() {
-        static const std::array<NormalKeyBinding, 13> bindings{{
-            {"char:I", EnterInsertAtLineStart{}},
-            {"char:A", EnterInsertAtLineEnd{}},
-            {"char:a", EnterInsertAfterCursor{}},
-            {"char::", EnterCommandMode{}},
-        }};
-        return bindings;
+    int resolvedCount(const int count) {
+        return count == 0 ? 1 : count;
     }
 
     /**
-     * @brief Resolves a key event into a normal-mode command variant.
-     * @param k Parsed key event.
-     * @return Command to execute, or std::monostate if unknown.
+     * @brief Appends a digit to an in-progress count.
+     * @param count Existing count value.
+     * @param digit Newly typed digit.
+     * @return Updated count.
      */
-    NormalCommand resolveNormalModeCommand(const editor_input::Key& k) {
-        const auto key_id = normalModeKeyId(k);
-
-        if (!key_id.has_value()) {
-            return std::monostate{};
-        }
-
-        for (const auto& [key, command] : defaultNormalModeKeyBindings()) {
-            if (key == key_id.value()) {
-                return command;
-            }
-        }
-
-        for (const auto& [key, command] : defaultNormalModeActionBindings()) {
-            if (key == key_id.value()) {
-                return command;
-            }
-        }
-
-        return std::monostate{};
+    int appendDigit(const int count, const char digit) {
+        return count * 10 + (digit - '0');
     }
 }
 
@@ -224,42 +249,176 @@ std::optional<ModeType> CommandMode::handle_input(ICommandModeContext& context, 
  * @return Next mode to switch to, or std::nullopt to remain in normal mode.
  */
 std::optional<ModeType> NormalMode::handle_input(INormalModeContext& context, const editor_input::Key& key) {
-    const auto command = resolveNormalModeCommand(key);
+    auto resetPendingState = [this]() {
+        command_count = 0;
+        motion_count = 0;
+        awaiting_g = false;
+        pending_operator.reset();
+    };
 
-    if (const auto* move = std::get_if<MoveByMotion>(&command)) {
+    auto finishMotion = [&](const MotionCommand& command) {
+        const auto repeat = command.uses_count ? resolvedCount(command_count) : 1;
         context.appendDebugMessage("Applying motion");
-        context.applyMotion(move->motion);
+        for (int i = 0; i < repeat; ++i) {
+            context.applyMotion(command.motion);
+        }
+        resetPendingState();
+    };
+
+    auto finishOperator = [&](const MotionCommand& command) {
+        const auto repeat = command.uses_count
+            ? resolvedCount(command_count) * resolvedCount(motion_count)
+            : 1;
+        context.appendDebugMessage("Applying operator");
+        context.applyOperator(*pending_operator, command.motion, repeat, command.linewise, command.inclusive);
+        resetPendingState();
+    };
+
+    auto handleInsertCommand = [&](const auto& command) -> std::optional<ModeType> {
+        if (pending_operator.has_value()) {
+            context.appendDebugMessage("Unknown key");
+            resetPendingState();
+            return std::nullopt;
+        }
+
+        if constexpr (std::is_same_v<std::decay_t<decltype(command)>, EnterInsert>) {
+            context.appendDebugMessage("Switching to insert mode");
+            resetPendingState();
+            return ModeType::INSERT;
+        }
+        else if constexpr (std::is_same_v<std::decay_t<decltype(command)>, EnterInsertAtLineStart>) {
+            context.appendDebugMessage("Switching to insert mode at line start");
+            context.applyMotion(editor_motion::LineStart{});
+            resetPendingState();
+            return ModeType::INSERT;
+        }
+        else if constexpr (std::is_same_v<std::decay_t<decltype(command)>, EnterInsertAtLineEnd>) {
+            context.appendDebugMessage("Switching to insert mode at line end");
+            context.applyMotion(editor_motion::LineEnd{});
+            resetPendingState();
+            return ModeType::INSERT;
+        }
+        else if constexpr (std::is_same_v<std::decay_t<decltype(command)>, EnterInsertAfterCursor>) {
+            context.appendDebugMessage("Switching to insert mode after cursor");
+            context.moveCursorRightOne();
+            resetPendingState();
+            return ModeType::INSERT;
+        }
+        else {
+            context.appendDebugMessage("Switching to command mode");
+            resetPendingState();
+            return ModeType::COMMAND;
+        }
+    };
+
+    if (std::holds_alternative<editor_input::Escape>(key)) {
+        if (command_count != 0 || motion_count != 0 || awaiting_g || pending_operator.has_value()) {
+            context.appendDebugMessage("Cancelled pending command");
+            resetPendingState();
+        }
         return std::nullopt;
     }
 
-    if (std::holds_alternative<EnterInsert>(command)) {
-        context.appendDebugMessage("Switching to insert mode");
-        return ModeType::INSERT;
+    if (awaiting_g) {
+        if (const auto c = normalModeCharacter(key); c.has_value() && *c == 'g') {
+            const MotionCommand command{editor_motion::FileStart{}, true, false, false};
+            if (pending_operator.has_value()) {
+                finishOperator(command);
+            }
+            else {
+                finishMotion(command);
+            }
+            return std::nullopt;
+        }
+
+        awaiting_g = false;
     }
 
-    if (std::holds_alternative<EnterInsertAtLineStart>(command)) {
-        context.appendDebugMessage("Switching to insert mode at line start");
-        context.applyMotion(editor_motion::LineStart{});
-        return ModeType::INSERT;
+    if (const auto special_motion = motionFromSpecialKey(key, pending_operator.has_value()); special_motion.has_value()) {
+        if (pending_operator.has_value()) {
+            finishOperator(*special_motion);
+        }
+        else {
+            finishMotion(*special_motion);
+        }
+        return std::nullopt;
     }
 
-    if (std::holds_alternative<EnterInsertAtLineEnd>(command)) {
-        context.appendDebugMessage("Switching to insert mode at line end");
-        context.applyMotion(editor_motion::LineEnd{});
-        return ModeType::INSERT;
+    const auto c = normalModeCharacter(key);
+    if (!c.has_value()) {
+        context.appendDebugMessage("Unknown key");
+        resetPendingState();
+        return std::nullopt;
     }
 
-    if (std::holds_alternative<EnterInsertAfterCursor>(command)) {
-        context.appendDebugMessage("Switching to insert mode after cursor");
-        context.moveCursorRightOne();
-        return ModeType::INSERT;
+    if (*c >= '1' && *c <= '9') {
+        if (pending_operator.has_value()) {
+            motion_count = appendDigit(motion_count, *c);
+        }
+        else {
+            command_count = appendDigit(command_count, *c);
+        }
+        return std::nullopt;
     }
 
-    if (std::holds_alternative<EnterCommandMode>(command)) {
-        context.appendDebugMessage("Switching to command mode");
-        return ModeType::COMMAND;
+    if (*c == '0') {
+        if (pending_operator.has_value() && motion_count != 0) {
+            motion_count = appendDigit(motion_count, *c);
+            return std::nullopt;
+        }
+
+        if (!pending_operator.has_value() && command_count != 0) {
+            command_count = appendDigit(command_count, *c);
+            return std::nullopt;
+        }
     }
 
-    context.appendDebugMessage("Unknown key");
-    return std::nullopt;
+    if (*c == 'd' || *c == 'y') {
+        const auto op = *c == 'd' ? NormalModeOperator::Delete : NormalModeOperator::Yank;
+        if (!pending_operator.has_value()) {
+            pending_operator = op;
+            motion_count = 0;
+            awaiting_g = false;
+            return std::nullopt;
+        }
+
+        if (*pending_operator == op) {
+            const auto total_lines = resolvedCount(command_count) * resolvedCount(motion_count);
+            context.appendDebugMessage("Applying operator");
+            context.applyOperator(op, editor_motion::Down{}, total_lines - 1, true, false);
+            resetPendingState();
+            return std::nullopt;
+        }
+
+        context.appendDebugMessage("Unknown key");
+        resetPendingState();
+        return std::nullopt;
+    }
+
+    if (*c == 'g') {
+        awaiting_g = true;
+        return std::nullopt;
+    }
+
+    if (const auto motion = motionFromCharacter(*c, pending_operator.has_value()); motion.has_value()) {
+        if (pending_operator.has_value()) {
+            finishOperator(*motion);
+        }
+        else {
+            finishMotion(*motion);
+        }
+        return std::nullopt;
+    }
+
+    switch (*c) {
+        case 'i': return handleInsertCommand(EnterInsert{});
+        case 'I': return handleInsertCommand(EnterInsertAtLineStart{});
+        case 'A': return handleInsertCommand(EnterInsertAtLineEnd{});
+        case 'a': return handleInsertCommand(EnterInsertAfterCursor{});
+        case ':': return handleInsertCommand(EnterCommandMode{});
+        default:
+            context.appendDebugMessage("Unknown key");
+            resetPendingState();
+            return std::nullopt;
+    }
 }

@@ -14,6 +14,17 @@ namespace {
         int x{0};
     };
 
+    enum class WordStyle {
+        Small,
+        Big
+    };
+
+    enum class WordClass {
+        Whitespace,
+        Keyword,
+        Punctuation
+    };
+
     bool isWordChar(const char ch) {
         const auto uch = static_cast<unsigned char>(ch);
         return std::isalnum(uch) != 0 || ch == '_';
@@ -31,6 +42,91 @@ namespace {
             return std::nullopt;
         }
         return line[static_cast<size_t>(pos.x)];
+    }
+
+    bool advancePosition(const TextDocument& document, TextPos& pos) {
+        const auto row_count = static_cast<int>(document.lineCount());
+        if (row_count <= 0 || pos.y < 0 || pos.y >= row_count) {
+            return false;
+        }
+
+        const auto line_length = static_cast<int>(document.lineRawLength(pos.y));
+        if (pos.x < line_length) {
+            ++pos.x;
+            return true;
+        }
+
+        if (pos.y < row_count - 1) {
+            ++pos.y;
+            pos.x = 0;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool retreatPosition(const TextDocument& document, TextPos& pos) {
+        if (pos.x > 0) {
+            --pos.x;
+            return true;
+        }
+
+        if (pos.y > 0) {
+            --pos.y;
+            pos.x = static_cast<int>(document.lineRawLength(pos.y));
+            return true;
+        }
+
+        return false;
+    }
+
+    std::optional<WordClass> wordClassAt(const TextDocument& document, const TextPos pos, const WordStyle style) {
+        if (const auto ch = charAt(document, pos); ch.has_value()) {
+            if (std::isspace(static_cast<unsigned char>(*ch)) != 0) {
+                return WordClass::Whitespace;
+            }
+
+            if (style == WordStyle::Big) {
+                return WordClass::Keyword;
+            }
+
+            return isWordChar(*ch) ? WordClass::Keyword : WordClass::Punctuation;
+        }
+
+        const auto row_count = static_cast<int>(document.lineCount());
+        if (row_count > 0 && pos.y >= 0 && pos.y < row_count - 1 &&
+            pos.x == static_cast<int>(document.lineRawLength(pos.y))) {
+            return WordClass::Whitespace;
+        }
+
+        return std::nullopt;
+    }
+
+    bool findMatchingDelimiter(const TextDocument& document, const TextPos start, const char open, const char close,
+                               const int direction, TextPos& matched) {
+        TextPos pos = start;
+        int depth = 1;
+
+        while (direction > 0 ? advancePosition(document, pos) : retreatPosition(document, pos)) {
+            const auto ch = charAt(document, pos);
+            if (!ch.has_value()) {
+                continue;
+            }
+
+            if (*ch == open) {
+                depth += direction > 0 ? 1 : -1;
+            }
+            else if (*ch == close) {
+                depth += direction > 0 ? -1 : 1;
+            }
+
+            if (depth == 0) {
+                matched = pos;
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
@@ -76,10 +172,13 @@ void CursorController::operator()(const auto& value) {
         moveFileEnd();
     }
     else if constexpr (std::is_same_v<T, editor_motion::WordForward>) {
-        moveWordForward();
+        moveWordForward(value.big);
     }
     else if constexpr (std::is_same_v<T, editor_motion::WordBackward>) {
-        moveWordBackward();
+        moveWordBackward(value.big);
+    }
+    else if constexpr (std::is_same_v<T, editor_motion::WordEnd>) {
+        moveWordEnd(value.big);
     }
     else if constexpr (std::is_same_v<T, editor_motion::ScreenTop>) {
         moveScreenTop();
@@ -134,6 +233,12 @@ void CursorController::setCursorPositionX(const int x) {
     else {
         cursor_pos.x = x;
     }
+}
+
+void CursorController::setCursorPosition(const int2d& position) {
+    cursor_pos = position;
+    desired_cursor_pos = cursor_pos.x;
+    clampCursorPosition();
 }
 
 /** @brief Moves the cursor to the end of the current row. */
@@ -234,48 +339,41 @@ void CursorController::moveFileEnd() {
     }
 }
 
-void CursorController::moveWordForward() {
-    const auto row_count = static_cast<int>(document.lineCount());
-    if (row_count <= 0) {
+void CursorController::moveWordForward(const bool big_word) {
+    if (document.empty()) {
         return;
     }
 
     TextPos pos{cursor_pos.y, cursor_pos.x};
+    const auto style = big_word ? WordStyle::Big : WordStyle::Small;
+    auto current_class = wordClassAt(document, pos, style);
 
-    auto advance = [&]() {
-        const auto line_length = static_cast<int>(document.lineRawLength(pos.y));
-        if (pos.x < line_length) {
-            ++pos.x;
-            return true;
-        }
-        if (pos.y < row_count - 1) {
-            ++pos.y;
-            pos.x = 0;
-            return true;
-        }
-        return false;
-    };
-    const auto ch = charAt(document, pos);
-    if (ch.has_value() && isWordChar(*ch)) {
-        // If we're on a word, skip to the end of it first
-        while (true) {
-            const auto cur = charAt(document, pos);
-            if (!cur.has_value() || !isWordChar(*cur)) {
-                break;
-            }
-            if (!advance()) {
-                break;
-            }
-        }
+    if (!current_class.has_value()) {
+        return;
     }
 
-    while (true) {
-        const auto cur = charAt(document, pos);
-        if (!cur.has_value() || !isWordChar(*cur)) {
-            break;
+    if (*current_class == WordClass::Whitespace) {
+        while (current_class.has_value() && *current_class == WordClass::Whitespace) {
+            if (!advancePosition(document, pos)) {
+                break;
+            }
+            current_class = wordClassAt(document, pos, style);
         }
-        if (!advance()) {
-            break;
+    }
+    else {
+        const auto token_class = *current_class;
+        while (current_class.has_value() && *current_class == token_class) {
+            if (!advancePosition(document, pos)) {
+                break;
+            }
+            current_class = wordClassAt(document, pos, style);
+        }
+
+        while (current_class.has_value() && *current_class == WordClass::Whitespace) {
+            if (!advancePosition(document, pos)) {
+                break;
+            }
+            current_class = wordClassAt(document, pos, style);
         }
     }
 
@@ -284,56 +382,93 @@ void CursorController::moveWordForward() {
     desired_cursor_pos = cursor_pos.x;
 }
 
-void CursorController::moveWordBackward() {
-    const auto row_count = static_cast<int>(document.lineCount());
-
-    if (row_count <= 0) {
+void CursorController::moveWordBackward(const bool big_word) {
+    if (document.empty()) {
         return;
     }
 
     TextPos pos{cursor_pos.y, cursor_pos.x};
-    auto retreat = [&]() {
-        if (pos.x > 0) {
-            --pos.x;
-            return true;
-        }
-        if (pos.y > 0) {
-            --pos.y;
-            pos.x = static_cast<int>(document.lineRawLength(pos.y));
-            return true;
-        }
-        return false;
-    };
+    const auto style = big_word ? WordStyle::Big : WordStyle::Small;
 
-    if (!retreat()) {
+    if (!retreatPosition(document, pos)) {
         return;
     }
 
-    while (true) {
-        const auto cur = charAt(document, pos);
-        if (!cur.has_value() || !isWordChar(*cur)) {
+    auto current_class = wordClassAt(document, pos, style);
+    while (current_class.has_value() && *current_class == WordClass::Whitespace) {
+        if (!retreatPosition(document, pos)) {
             break;
         }
-        if (!retreat()) {
-            break;
-        }
+        current_class = wordClassAt(document, pos, style);
     }
 
+    if (!current_class.has_value() || *current_class == WordClass::Whitespace) {
+        cursor_pos.y = pos.y;
+        cursor_pos.x = pos.x;
+        desired_cursor_pos = cursor_pos.x;
+        return;
+    }
+
+    const auto token_class = *current_class;
     while (true) {
-        const auto cur = charAt(document, pos);
-        if (!cur.has_value() || isWordChar(*cur)) {
-            break;
-        }
-        const TextPos previous = pos;
-        if (!retreat()) {
+        TextPos previous = pos;
+        if (!retreatPosition(document, previous)) {
             break;
         }
 
-        const auto before = charAt(document, pos);
-        if (!before.has_value() || !isWordChar(*before)) {
-            pos = previous;
+        const auto previous_class = wordClassAt(document, previous, style);
+        if (!previous_class.has_value() || *previous_class != token_class) {
             break;
         }
+
+        pos = previous;
+    }
+
+    cursor_pos.y = pos.y;
+    cursor_pos.x = pos.x;
+    desired_cursor_pos = cursor_pos.x;
+}
+
+void CursorController::moveWordEnd(const bool big_word) {
+    if (document.empty()) {
+        return;
+    }
+
+    TextPos pos{cursor_pos.y, cursor_pos.x};
+    const auto style = big_word ? WordStyle::Big : WordStyle::Small;
+    auto current_class = wordClassAt(document, pos, style);
+
+    if (!current_class.has_value()) {
+        return;
+    }
+
+    while (current_class.has_value() && *current_class == WordClass::Whitespace) {
+        if (!advancePosition(document, pos)) {
+            cursor_pos.y = pos.y;
+            cursor_pos.x = pos.x;
+            desired_cursor_pos = cursor_pos.x;
+            return;
+        }
+        current_class = wordClassAt(document, pos, style);
+    }
+
+    if (!current_class.has_value()) {
+        return;
+    }
+
+    const auto token_class = *current_class;
+    while (true) {
+        TextPos next = pos;
+        if (!advancePosition(document, next)) {
+            break;
+        }
+
+        const auto next_class = wordClassAt(document, next, style);
+        if (!next_class.has_value() || *next_class != token_class) {
+            break;
+        }
+
+        pos = next;
     }
 
     cursor_pos.y = pos.y;
@@ -405,7 +540,6 @@ void CursorController::moveParagraphBackward() {
 }
 
 void CursorController::moveToMatchingBracket() {
-    const auto row_count = static_cast<int>(document.lineCount());
     const auto at_cursor = charAt(document, TextPos{cursor_pos.y, cursor_pos.x});
     if (!at_cursor.has_value()) {
         return;
@@ -434,70 +568,37 @@ void CursorController::moveToMatchingBracket() {
         close = ']';
         direction = -1;
     }
+    else if (*at_cursor == '{') {
+        open = '{';
+        close = '}';
+        direction = +1;
+    }
+    else if (*at_cursor == '}') {
+        open = '{';
+        close = '}';
+        direction = -1;
+    }
 
     if (direction == 0) {
         return;
     }
 
-    TextPos pos{cursor_pos.y, cursor_pos.x};
-    int depth = 1;
-    auto step = [&]() {
-        if (direction > 0) {
-            const auto line_len = static_cast<int>(document.lineRawLength(pos.y));
-            if (pos.x + 1 < line_len) {
-                ++pos.x;
-                return true;
-            }
-            if (pos.y + 1 < row_count) {
-                ++pos.y;
-                pos.x = 0;
-                return true;
-            }
-            return false;
-        }
-        if (pos.x > 0) {
-            --pos.x;
-            return true;
-        }
-        if (pos.y > 0) {
-            --pos.y;
-            pos.x = static_cast<int>(document.lineRawLength(pos.y));
-            if (pos.x > 0) {
-                --pos.x;
-            }
-            return true;
-        }
-        return false;
-    };
-
-    while (step()) {
-        const auto ch = charAt(document, pos);
-        if (!ch.has_value()) {
-            continue;
-        }
-        if (*ch == open) {
-            depth += direction > 0 ? 1 : -1;
-        }
-        else if (*ch == close) {
-            depth += direction > 0 ? -1 : 1;
-        }
-        if (depth == 0) {
-            cursor_pos.y = pos.y;
-            cursor_pos.x = pos.x;
-            desired_cursor_pos = cursor_pos.x;
-            break;
-        }
+    TextPos matched{};
+    if (findMatchingDelimiter(document, TextPos{cursor_pos.y, cursor_pos.x}, open, close, direction, matched)) {
+        cursor_pos.y = matched.y;
+        cursor_pos.x = matched.x;
+        desired_cursor_pos = cursor_pos.x;
     }
 }
 
 void CursorController::moveToMatchingBrace() {
-    const auto row_count = static_cast<int>(document.lineCount());
     const auto at_cursor = charAt(document, TextPos{cursor_pos.y, cursor_pos.x});
     if (!at_cursor.has_value()) {
         return;
     }
 
-    char open = '\0', close = '\0';
+    char open = '\0';
+    char close = '\0';
     int direction = 0;
 
     if (*at_cursor == '{') {
@@ -515,53 +616,10 @@ void CursorController::moveToMatchingBrace() {
         return;
     }
 
-    TextPos pos{cursor_pos.y, cursor_pos.x};
-    int depth = 1;
-    auto step = [&]() {
-        if (direction > 0) {
-            const auto line_len = static_cast<int>(document.lineRawLength(pos.y));
-            if (pos.x + 1 < line_len) {
-                ++pos.x;
-                return true;
-            }
-            if (pos.y + 1 < row_count) {
-                ++pos.y;
-                pos.x = 0;
-                return true;
-            }
-            return false;
-        }
-        if (pos.x > 0) {
-            --pos.x;
-            return true;
-        }
-        if (pos.y > 0) {
-            --pos.y;
-            pos.x = static_cast<int>(document.lineRawLength(pos.y));
-            if (pos.x > 0) {
-                --pos.x;
-            }
-            return true;
-        }
-        return false;
-    };
-
-    while (step()) {
-        const auto ch = charAt(document, pos);
-        if (!ch.has_value()) {
-            continue;
-        }
-        if (*ch == open) {
-            depth += direction > 0 ? 1 : -1;
-        }
-        else if (*ch == close) {
-            depth += direction > 0 ? -1 : 1;
-        }
-        if (depth == 0) {
-            cursor_pos.y = pos.y;
-            cursor_pos.x = pos.x;
-            desired_cursor_pos = cursor_pos.x;
-            break;
-        }
+    TextPos matched{};
+    if (findMatchingDelimiter(document, TextPos{cursor_pos.y, cursor_pos.x}, open, close, direction, matched)) {
+        cursor_pos.y = matched.y;
+        cursor_pos.x = matched.x;
+        desired_cursor_pos = cursor_pos.x;
     }
 }

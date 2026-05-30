@@ -53,6 +53,9 @@ private:
         // NORMAL MODE
         /** @brief Applies a parsed movement command to the cursor controller. */
         void applyMotion(const editor_motion::Motion& motion) override;
+        /** @brief Applies an operator action using the cursor controller as motion executor. */
+        void applyOperator(NormalModeOperator op, const editor_motion::Motion& motion, int count,
+                           bool linewise, bool inclusive) override;
         /** @brief Moves cursor right by one character. */
         void moveCursorRightOne() override;
 
@@ -70,6 +73,9 @@ private:
     void processKeypress();
     /** @brief Marks the editor loop for exit. */
     void requestQuit();
+    /** @brief Applies a normal-mode operator action. */
+    void applyNormalOperator(NormalModeOperator op, const editor_motion::Motion& motion, int count,
+                             bool linewise, bool inclusive);
 
     TextDocument document;
     int2d screen_size{0,0};
@@ -79,6 +85,7 @@ private:
     std::variant<NormalMode, InsertMode, CommandMode> current_mode{NormalMode{}};
     ModeContextGate mode_context{*this};
     bool should_exit{false};
+    string yank_buffer;
 };
 
 #endif //MODALEDITOR_EDITOR_H

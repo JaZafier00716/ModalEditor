@@ -34,6 +34,8 @@ public:
     void applyMotion(const editor_motion::Motion& motion);
     /** @brief Sets the desired horizontal cursor position in raw columns. */
     void setCursorPositionX(int x);
+    /** @brief Sets the cursor position in document coordinates. */
+    void setCursorPosition(const int2d& position);
     /** @brief Moves the cursor to the beginning of the current line. */
     void moveCursorLineStart();
     /** @brief Moves the cursor to the end of the current line. */
@@ -62,8 +64,9 @@ private:
     void movePageDown();
     void moveFileStart();
     void moveFileEnd();
-    void moveWordForward();
-    void moveWordBackward();
+    void moveWordForward(bool big_word = false);
+    void moveWordBackward(bool big_word = false);
+    void moveWordEnd(bool big_word = false);
     void moveScreenTop();
     void moveScreenMiddle();
     void moveScreenBottom();

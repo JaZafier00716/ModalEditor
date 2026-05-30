@@ -158,8 +158,20 @@ bool TextDocument::insertNewlineAt(const int line, const int column) {
  * @return True on success.
  */
 bool TextDocument::eraseCharBefore(const int line, const int column) {
-    if (line < 0 || static_cast<size_t>(line) >= lines.size() || column <= 0) {
+    if (line < 0 || static_cast<size_t>(line) >= lines.size()) {
         return false;
+    }
+
+    if (column <= 0) {
+        if (line == 0) {
+            return false;
+        }
+
+        auto& [previous_raw, previous_rendered] = lines[static_cast<size_t>(line - 1)];
+        previous_raw += lines[static_cast<size_t>(line)].raw;
+        updateRow(previous_raw, previous_rendered);
+        lines.erase(lines.begin() + line);
+        return true;
     }
 
     auto& [raw, rendered] = lines[static_cast<size_t>(line)];
@@ -171,6 +183,90 @@ bool TextDocument::eraseCharBefore(const int line, const int column) {
     raw.erase(static_cast<size_t>(erase_col), 1);
     updateRow(raw, rendered);
 
+    return true;
+}
+
+std::string TextDocument::copyRange(const int start_line, const int start_column,
+                                    const int end_line, const int end_column) const {
+    if (start_line < 0 || end_line < start_line ||
+        static_cast<size_t>(end_line) >= lines.size()) {
+        return {};
+    }
+
+    const auto start_col = std::clamp(start_column, 0, static_cast<int>(lines[static_cast<size_t>(start_line)].raw.size()));
+    const auto end_col = std::clamp(end_column, 0, static_cast<int>(lines[static_cast<size_t>(end_line)].raw.size()));
+
+    if (start_line == end_line) {
+        if (end_col <= start_col) {
+            return {};
+        }
+        return lines[static_cast<size_t>(start_line)].raw.substr(static_cast<size_t>(start_col),
+                                                                 static_cast<size_t>(end_col - start_col));
+    }
+
+    std::string copied = lines[static_cast<size_t>(start_line)].raw.substr(static_cast<size_t>(start_col));
+    copied += '\n';
+
+    for (int line = start_line + 1; line < end_line; ++line) {
+        copied += lines[static_cast<size_t>(line)].raw;
+        copied += '\n';
+    }
+
+    copied += lines[static_cast<size_t>(end_line)].raw.substr(0, static_cast<size_t>(end_col));
+    return copied;
+}
+
+std::string TextDocument::copyLineRange(const int start_line, const int end_line) const {
+    if (start_line < 0 || end_line < start_line ||
+        static_cast<size_t>(end_line) >= lines.size()) {
+        return {};
+    }
+
+    std::string copied;
+    for (int line = start_line; line <= end_line; ++line) {
+        copied += lines[static_cast<size_t>(line)].raw;
+        copied += '\n';
+    }
+    return copied;
+}
+
+bool TextDocument::eraseRange(const int start_line, const int start_column,
+                              const int end_line, const int end_column) {
+    if (start_line < 0 || end_line < start_line ||
+        static_cast<size_t>(end_line) >= lines.size()) {
+        return false;
+    }
+
+    auto start_col = std::clamp(start_column, 0, static_cast<int>(lines[static_cast<size_t>(start_line)].raw.size()));
+    auto finish_col = std::clamp(end_column, 0, static_cast<int>(lines[static_cast<size_t>(end_line)].raw.size()));
+
+    if (start_line == end_line) {
+        if (finish_col <= start_col) {
+            return true;
+        }
+
+        auto& [raw, rendered] = lines[static_cast<size_t>(start_line)];
+        raw.erase(static_cast<size_t>(start_col), static_cast<size_t>(finish_col - start_col));
+        updateRow(raw, rendered);
+        return true;
+    }
+
+    auto& [start_raw, start_rendered] = lines[static_cast<size_t>(start_line)];
+    const auto suffix = lines[static_cast<size_t>(end_line)].raw.substr(static_cast<size_t>(finish_col));
+    start_raw = start_raw.substr(0, static_cast<size_t>(start_col)) + suffix;
+    updateRow(start_raw, start_rendered);
+
+    lines.erase(lines.begin() + start_line + 1, lines.begin() + end_line + 1);
+    return true;
+}
+
+bool TextDocument::eraseLineRange(const int start_line, const int end_line) {
+    if (start_line < 0 || end_line < start_line ||
+        static_cast<size_t>(end_line) >= lines.size()) {
+        return false;
+    }
+
+    lines.erase(lines.begin() + start_line, lines.begin() + end_line + 1);
     return true;
 }
 

@@ -16,6 +16,12 @@ enum class ModeType {
     COMMAND
 };
 
+/** @brief Supported operator-pending actions in normal mode. */
+enum class NormalModeOperator {
+    Delete,
+    Yank
+};
+
 /**
  * @brief Shared mode callback interface implemented by the editor host.
  */
@@ -57,6 +63,9 @@ public:
     ~INormalModeContext() override = default;
     /** @brief Applies a parsed motion command to the cursor. */
     virtual void applyMotion(const editor_motion::Motion& motion) = 0;
+    /** @brief Applies an operator against a motion target. */
+    virtual void applyOperator(NormalModeOperator op, const editor_motion::Motion& motion, int count,
+                               bool linewise, bool inclusive) = 0;
     /** @brief Moves cursor right by one character. */
     virtual void moveCursorRightOne() = 0;
 };
@@ -114,6 +123,12 @@ public:
     [[nodiscard]] std::string_view getName() const override {
         return "Normal";
     };
+
+private:
+    int command_count{0};
+    int motion_count{0};
+    bool awaiting_g{false};
+    std::optional<NormalModeOperator> pending_operator{};
 };
 
 #endif //MODALEDITOR_EDITORMODE_H

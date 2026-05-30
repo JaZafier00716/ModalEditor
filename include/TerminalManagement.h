@@ -141,8 +141,9 @@ namespace editor_motion {
     struct FileStart{};
     struct FileEnd{};
 
-    struct WordForward{};
-    struct WordBackward{};
+    struct WordForward{ bool big{false}; };
+    struct WordBackward{ bool big{false}; };
+    struct WordEnd{ bool big{false}; };
 
     struct ScreenTop{};
     struct ScreenMiddle{};
@@ -166,7 +167,7 @@ namespace editor_motion {
         PageUp, PageDown,
         LineStart, LineEnd,
         FileStart, FileEnd,
-        WordForward, WordBackward,
+        WordForward, WordBackward, WordEnd,
         ScreenTop, ScreenMiddle, ScreenBottom,
         ParagraphForward, ParagraphBackward,
         MatchingBracket, MatchingBrace//,

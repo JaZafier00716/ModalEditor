@@ -35,7 +35,12 @@ void EditorView::refreshScreen(const std::variant<NormalMode, InsertMode, Comman
                    row_pos + 1);
     output_buffer += terminal_control_sequences::reset_invert_colors;
     output_buffer += terminal_control_sequences::new_line;
-    std::format_to(std::back_inserter(output_buffer), "{}", debug_info_message);
+    const std::string_view debug_view = debug_info_message;
+    const auto debug_split = std::min(debug_view.size(), static_cast<size_t>(screen_size.x));
+    std::format_to(std::back_inserter(output_buffer), "{}", debug_view.substr(0, debug_split));
+    output_buffer += terminal_control_sequences::clear_to_eol;
+    output_buffer += terminal_control_sequences::new_line;
+    std::format_to(std::back_inserter(output_buffer), "{}", debug_view.substr(debug_split, static_cast<size_t>(screen_size.x)));
 
     const auto render_col_pos = document.renderColumnFromRaw(row_pos, col_pos);
     const int2d visual_cursor = {

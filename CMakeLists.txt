@@ -29,6 +29,7 @@ add_executable(ModalEditor ${SOURCES} ${HEADERS})
 
 # This tells the compiler where to look for #include "File.h"
 target_include_directories(ModalEditor PUBLIC include)
+target_compile_definitions(ModalEditor PRIVATE MOTION_CONFIG_DIR="${CMAKE_SOURCE_DIR}")
 
 find_program(VALGRIND_PATH valgrind)
 if(VALGRIND_PATH)

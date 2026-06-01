@@ -5,6 +5,7 @@
 #ifndef MODALEDITOR_EDITORMODE_H
 #define MODALEDITOR_EDITORMODE_H
 #include <optional>
+#include <string>
 #include <string_view>
 
 #include "TerminalManagement.h"
@@ -21,6 +22,9 @@ enum class NormalModeOperator {
     Delete,
     Yank
 };
+
+/** @brief Loads normal-mode motion bindings from a config file, falling back to built-in defaults on error. */
+bool loadNormalModeConfig(std::string_view path, std::string& error_message);
 
 /**
  * @brief Shared mode callback interface implemented by the editor host.
@@ -127,7 +131,7 @@ public:
 private:
     int command_count{0};
     int motion_count{0};
-    bool awaiting_g{false};
+    std::string pending_sequence{};
     std::optional<NormalModeOperator> pending_operator{};
 };
 
